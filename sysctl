@@ -1,0 +1,7 @@
+在内核运行时动态地查看和修改内核的运行参数
+
+
+查看系统配置
+sysctl -a
+sysctl net
+sysctl kernal

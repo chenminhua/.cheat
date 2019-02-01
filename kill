@@ -1,0 +1,25 @@
+kill -l 列出所有信号
+0:TEST, 1:HUP, 2:INT(ctrl+c), 3:QUIT, 15:TERM, 9:KILL, 18:CONT(继续), 19:STOP(暂停)
+
+kill 1% 啥background的1号作业
+
+killall python 杀所有的python
+
+jobs 列出所有的当前作业
+
+fg 将第一个后台作业切换到前台
+
+fg 2% 将后台2号作业拿到前台运行
+
+bg 将当前作业放到后台
+
+bg 1% 让后台1号作业在后台运行
+
+# trap执行命令
+trap "command" signal-list  捕获信号并执行命令
+trap "" signal-list  忽略信号
+trap signal-list  恢复信号
+
+# nohup
+在终端关闭的时候，会给其启动的所有进程发送SIGHUP(1),而使用nohup启动的进程则会忽略SIGHUP信号。
+nohup "command" &; 后台执行且忽略SIGHUP信号

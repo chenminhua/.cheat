@@ -1,0 +1,52 @@
+mysql-bin.index文件是所有bin log文件的列表
+
+查看所有binlog
+show binary logs;
+
+查看某一个binlog中的events
+show binlog events in  'mysql-bin.000001';
+
+关闭当前使用的binary log，然后打开一个新的binary log文件
+flush logs;
+
+查看是否打开binlog
+show variables like 'log_bin';
+
+查看当前数据库binlog的位置
+show master status; 
+
+获取指定位置的binlog
+show binlog events from 123;
+
+
+
+
+a、提取指定的binlog日志
+# mysqlbinlog /opt/data/APP01bin.000001
+# mysqlbinlog /opt/data/APP01bin.000001|grep insert
+/*!40019 SET @@session.max_insert_delayed_threads=0*/;
+insert into tb values(2,'jack')
+
+b、提取指定position位置的binlog日志
+# mysqlbinlog --start-position="120" --stop-position="332" /opt/data/APP01bin.000001
+
+c、提取指定position位置的binlog日志并输出到压缩文件
+# mysqlbinlog --start-position="120" --stop-position="332" /opt/data/APP01bin.000001 |gzip >extra_01.sql.gz
+
+d、提取指定position位置的binlog日志导入数据库
+# mysqlbinlog --start-position="120" --stop-position="332" /opt/data/APP01bin.000001 | mysql -uroot -p
+
+e、提取指定开始时间的binlog并输出到日志文件
+# mysqlbinlog --start-datetime="2014-12-15 20:15:23" /opt/data/APP01bin.000002 --result-file=extra02.sql
+
+f、提取指定位置的多个binlog日志文件
+# mysqlbinlog --start-position="120" --stop-position="332" /opt/data/APP01bin.000001 /opt/data/APP01bin.000002|more
+
+g、提取指定数据库binlog并转换字符集到UTF8
+# mysqlbinlog --database=test --set-charset=utf8 /opt/data/APP01bin.000001 /opt/data/APP01bin.000002 >test.sql
+
+h、远程提取日志，指定结束时间
+# mysqlbinlog -urobin -p -h192.168.1.116 -P3306 --stop-datetime="2014-12-15 20:30:23" --read-from-remote-server mysql-bin.000033 |more
+
+i、远程提取使用row格式的binlog日志并输出到本地文件
+# mysqlbinlog -urobin -p -P3606 -h192.168.1.177 --read-from-remote-server -vv inst3606bin.000005 >row.sql

@@ -1,0 +1,64 @@
+
+# compose
+compose使用python开发，用于定义和运行一个或多个容器。compose用yml文件来定义多容器应用。
+docker-compose up 命令用于启动整个应用。
+下面这个yml文件定义了两个服务：web和redis
+
+```yml
+web:
+  build: ./web
+  ports:
+  - "5000:5000"
+  volumes:
+  - .:/code
+  links:
+  - redis
+redis:
+  image: redis
+```
+
+compose 可以start, stop, rebuild你的服务
+查看你服务的状态
+查看Log
+run a one-off command on a service
+
+### 安装
+mac和windows自带，可以跳过
+
+```
+curl -L "https://github.com/docker/compose/releases/download/1.11.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose
+
+chmod +x /usr/bin/docker-compose
+
+docker-compose --version
+```
+
+### 子命令
+```
+docker-compose --help
+
+build   构建或重建服务
+bundle  生成一个docker bundle(分布式应用捆绑包，简称DAB)
+config  验证和查看compose file
+create  创建containers
+down    stop and remove container
+events  输出容器的事件
+exec    等效于docker exec
+help
+kill    强制停止容器（发送sigkill信号）
+logs    日志
+pause/unpause  暂停/继续容器
+port    打印绑定的开放端口
+ps      列出containers
+pull    拉service images
+push    推
+restart 重启service
+rm
+run     起一个服务， docker-compose run web bash
+scale   为这个服务起多个容器 docker-compose scale web=2 worker=3
+start
+stop
+top     容器内进程运行情况
+up
+version
+```

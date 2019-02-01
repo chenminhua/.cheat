@@ -1,0 +1,12 @@
+# 列出系统中各个等级对应的服务开关情况
+chkconfig --list
+chkconfig --list network
+chkconfig --level 2345 network on
+
+chkconfig --add myservice 增加服务
+chkconfig --del myservice 删除服务
+
+# chkconfig原理
+请看/etc/rc.d目录下的7个对应不同运行等级的文件夹,每个文件夹下都存在很多链接文件，其中以K开头的表示在该运行等级下需要关闭的服务，而S开头的表示在该运行等级下需要打开的服务。
+
+使用chkconfig时其实就是去修改这些链接文件

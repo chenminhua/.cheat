@@ -1,0 +1,42 @@
+# 虚拟机性能监控与故障处理工具
+
+### jps
+-q, -m, -l, -v
+
+### jstat
+可以显示本地或者远程虚拟机进程中的类装载，内存，垃圾收集，JIT编译等运行数据
+jstat -gc <lvmid> 250 20
+
+-class 监视类装载卸载数量，总空间，类装载时间
+-gc    监视jvm堆状况
+-gcutil 监视内容与-gc基本相同，但主要关注已经使用空间占总空间百分比。
+
+### jinfo
+实时查看和调整虚拟机参数
+jinfo pid
+
+### jmap
+用于生成heapdump文件
+可以使用 -XX:+HeapDumpOnOutOfMemoryError参数，在oom异常发生时自动生成dump文件，
+使用-XX:+HeapDumpOnCtrlBreak可以使用ctrl+break让虚拟机生成dump文件。
+
+jmap -dump:format=b,file=dump.bin vmid 生成堆转储快照
+jmap -heap vmid 显示堆信息
+jmap -histo 显示堆中对象的统计信息。
+
+### jhat
+jhat dump.bin 在网页查看转储文件
+
+### jstack
+当前时刻的线程快照，当前虚拟机中每个线程正在执行的方法堆栈的集合。
+
+### HSDIS: JIT生成代码反汇编
+
+### jconsole
+
+### jvisualvm
+
+### visualVM
+可以安装一个idea插件
+
+

@@ -1,0 +1,68 @@
+# systemd是用于启动守护进程的系统工具
+linux的启动采用init进程
+比如启动apache2的方法有
+    sudo /etc/init.d/apache2 start
+    或者 service apache2 start
+
+为了解决init进程串行启动太慢的问题，systemd应运而生
+
+重启 systemctl reboot
+
+# systemd-analyze
+查看启动耗时 systemd-analyze
+             systemd-analyze blame
+             systemd-analyze critical-chain
+
+# hostnamectl
+# localectl
+# timedatectl
+# loginctl
+
+# Unit
+systemd可以管理的所有系统资源都称为Unit
+Unit一共分为12种：
+    service,系统服务
+    target,多个unit的组
+    device,硬件
+    mount: 文件系统挂载点
+    path: 文件路径
+    scoket
+
+# 查看当前系统所有的Unit
+systemctl list-units
+                     -all 包括启动失败的
+                     -all --state=inactive 列出所有没有运行的
+                     --type=service 列出所有正在运行的service
+
+# 查看某个服务的状态
+systemctl status foo.service
+
+# 启动/停止/重启某个服务
+systemctl start/stop/restart foo.service
+
+# 重载某个服务的配置文件
+systemctl reload foo.service
+
+# 开启/关闭服务的开机启动
+systemctl enable/disable foo.service
+
+# 列出某个Unit的参数
+systemctl show foo.service
+
+# 设置属性
+systemctl set-property httpd.service CPUShares=500
+
+# 列出依赖
+systemctl list-dependencies foo.service 
+
+# Change current target
+systemctl isolate foo.target
+
+# Change default target
+systemctl enable foo.target
+
+# 配置文件
+在/etc/systemd/system下有一堆链接文件
+
+# target
+target就是一个unit组，包含许多相关的Unit,启动一个target

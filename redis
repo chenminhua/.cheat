@@ -1,0 +1,121 @@
+# redis 入门
+redis可以将存储在内存的键值对数据持久化到硬盘，可以使用复制特性来扩展读性能，还可以使用客户端分片来扩展写性能。
+
+[命令文档](http://redis.io/commands)
+[配置文件的设置](http://www.runoob.com/redis/redis-conf.html)
+
+type foo  #判断键值类型
+keys *   #查看所有key
+flushdb   #删除当前数据库中所有键
+flushall  #删除所有数据库中的键
+
+## string
+INCR key-name
+DECR key-name
+INCRBY key-name amount
+DECRBY key-name amount
+INCRBYFLOAT key-name amount
+
+APPEND 字符串拼接
+GETRANGE 字符串剪切
+SETRANGE 字符串替换
+
+## list
+LLEN list_name  # 查看list长度
+RPUSH x v0   # 右侧压入
+LPUSH x v1       # 左侧压入
+LINDEX x 0   # v0
+LINDEX x 1   # v1
+LRANGE x 0 1 # v0 v1
+LTRIM x      # 修剪列表
+LPOP x       # 左侧弹出
+RPOP x       # 右侧弹出
+
+还有几个阻塞式的列表弹出命令以及在列表之间移动元素的命令
+BLPOP(BRPOP) key-name timeout 从第一个非空列表的最左/右端弹出，如果没有可弹出的，则等待timeout秒，直到有元素可以弹出
+RPOPLPUSH src-key dest-key  从一个表弹出到另一个表
+BRPOPLPUSH src-key dest-key timeout
+阻塞弹出命令和弹出推入命令最常见的用例就是消息传递和任务队列。
+
+## set
+SADD s js python           # 添加元素到集合
+SMEMBERS s           # 查看集合的所有元素
+SISMEMBER s python   # 查看集合是否有某个元素 1
+SREM s python # 从集合删除元素 1
+SCARD s #集合中元素个数
+SRANDMEMBER s [count] #从集合中随机返回一个或多个元素
+SPOP s   #从集合中随机移除一个元素
+SMOVE src-key dest-key item #从一个集合移动到另一个集合
+
+集合运算
+SDIFF key-name [key-name ...] #返回在第一个集合中，但是不在其他集合中的元素
+SDIFF dest-key key-name [key-name ...] #将SDIFF的结果存到dest-key集合中
+SINTER key-name [key-name ...]         #交集运算
+SINTERSTORE dest-key key-name [key-name ...] #将交集运算结果存到dest-key集合中
+SUNION key-name [key-name ...]      #并集运算
+SUNION dest-key key-name [key-name ...]    #将并集运算结果存到dest-key集合中
+
+## hash
+HSET key-name key value       # set
+HGET key-name key             # 取得指定键的值
+HMSET key-name key value [key value ...]
+HMGET key-name key [key ...]
+HDEL key-name                 # 删除hash的某个键
+HLEN key-name                 # hash中的键值对数
+HEXISTS key-name key          # 判断指定hash中有没有指定键
+HKEYS key-name                # 指定hash的全部key
+HVALS key-name                # 指定hash的全部value
+HGETALL key-name              # 返回整个hash
+HINCRBY key-name key increment # 给指定hash的指定键的值加指定值
+HINCRBYFLOAT key-name key increment
+
+## zset,redis的有序集合
+ZADD key-name score member [score member ...]      # 将带有给定分值的成员添加到有序集合里面
+ZREM key-name member [member]     #从有序集合中删除元素
+ZCARD key-name                    #返回有序集合包含的成员数
+ZINCRBY key-name increment member  #将member成员的分数增加increment
+ZCOUNT key-name min max     #返回分值在min到max之间的成员数量
+ZRANGE z 0 -1 withscores   # 根据元素所处的位置取出多个元素
+ZRANGE z 0 800 withscores  # 取出排名前八百的
+ZRANK key-name member      # 返回成员排名
+ZREVRANK key-name member   # 返回成员排名
+ZREVRANGE key-name min max
+ZREVRANGEBYSCORE key-name max min
+zrangebyscore z 0 800 withscores # 获取给定分值范围内的元素
+
+## pub / sub
+SUBSCRIBE channel [channel ...] 订阅一个或多个channel
+UNSUBSCRIBE channel [channel ...] 退订一个或多个channel
+PUBLISH channel message  给指定channel发送消息
+PSUBSCRIBE pattern [pattern ...] 订阅与给定模式相匹配的频道
+PUNSUBSCRIBE patterm [pattern ...] 取消订阅
+
+## 事务
+MULTI, EXEC, WATCH, UNWATCH, DISCARD五个命令。
+要在redis中执行事务，我们首先要执行multi命令，然后输入那些我们想要在一个事务中执行的命令，这些命令都不会被立即执行，而是放入一个队列，直到执行exec命令。从语义上来说，redis的事务是由流水线实现的。
+
+使用流水线有两个好处：移除竞争条件和提高性能。
+
+## 过期处理
+PERSIST key-name  移除过期时间
+TTL key-name     查看还有多久过期
+EXPIRE key-name seconds 指定过期时间
+EXPITEAT key-name timestamp 指定过期时间
+PTTL key-name 查看还有多久过期（毫秒）
+PEXPIRE key-name milliseconds 指定过期时间
+PEXPIREAT key-name timestamp-milliseconds 指定过期时间
+
+# 持久化
+redis可以通过创建快照来获得存储在内存中的数据在某个时间节点上的副本。
+
+创建快照的方法：
+  客户端向redis发送SAVE命令，由于这个命令会导致redis无法接受其他命令，这个命令不常用
+  客户端向redis发送BGSAVE命令，redis会fork一个子进程来负责将快照写入硬盘。
+  如果用户设置了save配置选项，比如save 60 10000,表示60秒内有10000次写入，当这个条件满足时，自动触发BGSAVE。
+  当redis通过SHUTDOWN命令来关闭服务器时，或者收到标准的TERM信号时，会执行save命令
+  当一个redis连接另一个redis服务器，并向其发送sync命令来开始一次复制操作时，主服务器会进行一次BGSAVE
+
+AOF(只追加文件)是redis的另一种持久化方法
+
+appendonly yes
+appendfsync always/everysec/no

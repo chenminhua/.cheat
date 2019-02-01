@@ -1,0 +1,16 @@
+conda --version
+conda update conda
+
+conda create --name envName
+    $source activate testconda
+    $source deactivate
+
+删除某个环节
+conda remove --name envName --all
+
+查看你有哪些env
+conda env list
+
+指定python版本
+conda create --name envName python=3.5
+

@@ -1,0 +1,31 @@
+ipfs init
+
+ipfs cat /ipfs/xxxxxxxx/readme
+
+ipfs daemon
+# API server listening on /ip4/127.0.0.1/tcp/5001
+# Gateway server listening on /ip4/127.0.0.1/tcp/8080
+http://127.0.0.1:8080/ipfs/$hash
+http://localhost:5001/webui
+
+ipfs swarm peers
+
+ipfs cat /ipfs/QmW2WQi7j6c7UgJTarActp7tDNikE4B2qXtFCfLPdsgaTQ/cat.jpg >cat.jpg
+
+hash=`echo "I <3 IPFS -$(whoami)" | ipfs add -q`
+curl "https://ipfs.io/ipfs/$hash"
+curl "http://127.0.0.1:8080/ipfs/$hash"
+# I <3 IPFS -<your username>
+
+
+# ipfs add
+ipfs add alargefile 
+ipfs ls thathash
+
+ipfs block stat 
+
+echo "This is some data" | ipfs block put
+ipfs block get thathash
+# this is some data
+
+

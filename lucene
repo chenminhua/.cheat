@@ -1,0 +1,22 @@
+索引的大小粗略为被索引文本的20-30%
+分级检索能力，很多强大的query种类，支持域检索，支持日期范围检索，允许更新和查询同时进行
+
+analysis包
+定义了一个抽象的analysis api，用于将文本从一个io.Reader转换成一个TokenStream
+
+document包
+提供一个简单的Document类，包括一系列命名的域（Fields）
+
+index包
+IndexWriter用于创建索引并添加文档，IndexReader用于访问索引中的数据
+
+search包
+提供数据结构来查询，TermQuery,PharseQuery,BooleanQuery等等。Searcher用于获得查询结果
+
+queryParser包
+
+store包
+文件存储和内存存储
+
+util包
+

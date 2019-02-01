@@ -1,0 +1,305 @@
+-i 选择监听的网卡
+-X 把协议头和包的内容都显示出来
+-nn 显示端口号
+-c 设置抓包的个数
+-I 输出变为行缓冲
+-e 增加帧头部信息
+
+# TCPDump is a packet analyzer. It allows the user to intercept and display TCP/IP
+# and other packets being transmitted or received over a network. (cf Wikipedia).
+# Note: 173.194.40.120 => google.com
+
+# 指定网卡
+tcpdump -i eth0
+
+# 指定ip
+tcpdump host 173.194.40.120
+
+# Intercepts all packets on all interfaces from / to 173.194.40.120 port 80
+# -nn => Disables name resolution for IP addresses and port numbers.
+tcpdump -nn -i any host 173.194.40.120 and port 80
+
+# Make a grep on tcpdump (ASCII)
+# -A  => Show only ASCII in packets.
+# -s0 => By default, tcpdump only captures 68 bytes.
+tcpdump -i -A any host 173.194.40.120 and port 80 | grep 'User-Agent'
+
+# With ngrep
+# -d eth0 => To force eth0 (else ngrep work on all interfaces)
+# -s0 => force ngrep to look at the entire packet. (Default snaplen: 65536 bytes)
+ngrep 'User-Agent' host 173.194.40.120 and port 80
+
+# 抓取从 8.8.8.8 到 173.194.40.127 的包
+tcpdump 'host ( 8.8.8.8 or 173.194.40.127 ) and port 80' -i any
+
+# Intercepts all packets SYN and FIN of each TCP session.
+tcpdump 'tcp[tcpflags] & (tcp-syn|tcp-fin) != 0'
+
+# To display SYN and FIN packets of each TCP session to a host that is not on our network
+tcpdump 'tcp[tcpflags] & (tcp-syn|tcp-fin) != 0 and not src and dst net local_addr'
+
+# To display all IPv4 HTTP packets that come or arrive on port 80 and that contain only data (no SYN, FIN no, no packet containing an ACK)
+tcpdump 'tcp port 80 and (((ip[2:2] - ((ip[0]&0xf)<<2)) - ((tcp[12]&0xf0)>>2)) != 0)'
+
+# 保存抓到的数据
+tcpdump -w file.cap
+
+# 读取抓到的数据
+tcpdump -r file.cap
+
+# 16进制
+tcpdump -x
+
+# ASCII
+tcpdump -X
+
+# Note on packet maching:
+# Port matching:
+# - portrange 22-23
+# - not port 22
+# - port ssh
+# - dst port 22
+# - src port 22
+#
+# Host matching:
+# - dst host 8.8.8.8
+# - not dst host 8.8.8.8
+# - src net 67.207.148.0 mask 255.255.255.0
+# - src net 67.207.148.0/24
+
+
+
+sudo tcpdump -i en0 tcp -nn -c 10 and host 184.105.206.29
+
+
+
+
+
+
+
+
+## 标志位
+URG,ACK,PSH,RST,SYN,FIN
+
+客户端发起第一次握手 flag = syn,        seq = 1735966086, ack = 0
+服务端响应握手      flag = ack, syn,   seq = 1699973461, ack = 1735966087
+客户端再响应        flag = ack,        seq = 1735966087, ack = 1699973462
+
+客户端发起请求      flag = ACK, PSH,   seq = 1735966087, ack = 1699973462
+服务端ack请求      flag = ack         seq = 1699973462, ack = 1735966165,
+
+服务端发送http头    flag = ack, psh    seq = 1699973462, ack = 1735966165, 包一长238
+服务端发送body      flag = ack, psh    seq = 1699973700, ack = 1735966165, 包二长612
+客户端ack          flag = ack，        seq = 1735966165, ack = 1699973700, ack包一
+客户端ack,         flag = ack,       seq = 1735966165, ack = 1699974312,   ack包二
+
+客户端挥手 seq = 1735966165, ack = 1699974312, flag = (ack, fin)
+服务端挥手 seq = 1699974312, ack = 1735966166, flag = (ack, fin)
+客户端再挥手 seq = 1735966166, ack = 1699974313, flag = (ack)
+
+
+
+
+### 三次握手
+客户端发起第一次握手 seq = 1735966086, ack = 0, flag = syn
+14:56:58.361003 IP (tos 0x0, ttl 64, id 0, offset 0, flags [DF], proto TCP (6), length 64)
+    172.168.1.26.54691 > 168.63.246.148.80: Flags [S], cksum 0x63d9 (correct), seq 1735966086, win 65535, options [mss 1460,nop,wscale 5,nop,nop,TS val 1026379373 ecr 0,sackOK,eol], length 0
+	0x0000:  4500 0040 0000 4000 4006 ee21 aca8 011a  E..@..@.@..!....
+	0x0010:  a83f f694 d5a3 0050 6778 bd86 0000 0000  .?.....Pgx......
+	0x0020:  b002 ffff 63d9 0000 0204 05b4 0103 0305  ....c...........
+	0x0030:  0101 080a 3d2d 4e6d 0000 0000 0402 0000  ....=-Nm........
+
+	4500 版本号，4表示IPV4, 5表示IP包头长度为5个32字节
+	0040 总长度，64字节
+	4000 标志字段,和片偏移,用于分片
+	4006 40表示ttl，06表示tcp
+	ee21 :mac
+	aca8 011a: src ip
+
+	a83f f694: dest ip
+	d5a3 源端口
+	0050 目标端口
+	6778 bd86 包序号  = 1735966086
+	0000 0000 确认序号，未设置ACK，确认序号无效
+
+	b002 包头长度和标志位，后六位为（URG, ACK，PSH， RST， SYN， FIN），可以看出设置了SYN
+	ffff 窗口大小
+	63d9 校验和
+	0000 紧急指针
+	后面八个字节是选项字段
+
+	再后面是用户数据
+
+服务端回复握手，ack为客户端发来的seq+1,并发去了自己的seq
+14:56:58.444439 IP (tos 0x20, ttl 48, id 0, offset 0, flags [DF], proto TCP (6), length 60)
+    168.63.246.148.80 > 172.168.1.26.54691: Flags [S.], cksum 0xf05d (correct), seq 1699973461, ack 1735966087, win 28960, options [mss 1440,sackOK,TS val 1203887350 ecr 1026379373,nop,wscale 7], length 0
+	0x0000:  4520 003c 0000 4000 3006 fe05 a83f f694  E..<..@.0....?..
+	0x0010:  aca8 011a 0050 d5a3 6553 8955 6778 bd87  .....P..eS.Ugx..
+	0x0020:  a012 7120 f05d 0000 0204 05a0 0402 080a  ..q..]..........
+	0x0030:  47c1 dcf6 3d2d 4e6d 0103 0307            G...=-Nm....
+
+	seq = 1699973461
+	ack = 1735966087
+
+客户端再回复，ack为1
+14:56:58.444518 IP (tos 0x0, ttl 64, id 0, offset 0, flags [DF], proto TCP (6), length 52)
+    172.168.1.26.54691 > 168.63.246.148.80: Flags [.], cksum 0x7fda (correct), ack 1, win 4105, options [nop,nop,TS val 1026379456 ecr 1203887350], length 0
+	0x0000:  4500 0034 0000 4000 4006 ee2d aca8 011a  E..4..@.@..-....
+	0x0010:  a83f f694 d5a3 0050 6778 bd87 6553 8956  .?.....Pgx..eS.V
+	0x0020:  8010 1009 7fda 0000 0101 080a 3d2d 4ec0  ............=-N.
+	0x0030:  47c1 dcf6                                G...
+
+	seq = 1735966087
+	ack = 1699973462
+
+
+### 开始发消息
+客户端发起请求，seq = 1735966087, ack = 1699973462, flag = 18 (ACK, PSH)，发送一个总长度130-52 =78的包
+14:56:58.444648 IP (tos 0x0, ttl 64, id 0, offset 0, flags [DF], proto TCP (6), length 130)
+    172.168.1.26.54691 > 168.63.246.148.80: Flags [P.], cksum 0x0614 (correct), seq 1:79, ack 1, win 4105, options [nop,nop,TS val 1026379456 ecr 1203887350], length 78: HTTP, length: 78
+	GET / HTTP/1.1
+	Host: 168.63.246.148
+	User-Agent: curl/7.54.0
+	Accept: */*
+
+	0x0000:  4500 0082 0000 4000 4006 eddf aca8 011a  E.....@.@.......
+	0x0010:  a83f f694 d5a3 0050 6778 bd87 6553 8956  .?.....Pgx..eS.V
+	0x0020:  8018 1009 0614 0000 0101 080a 3d2d 4ec0  ............=-N.
+	0x0030:  47c1 dcf6 4745 5420 2f20 4854 5450 2f31  G...GET./.HTTP/1
+	0x0040:  2e31 0d0a 486f 7374 3a20 3136 382e 3633  .1..Host:.168.63
+	0x0050:  2e32 3436 2e31 3438 0d0a 5573 6572 2d41  .246.148..User-A
+	0x0060:  6765 6e74 3a20 6375 726c 2f37 2e35 342e  gent:.curl/7.54.
+	0x0070:  300d 0a41 6363 6570 743a 202a 2f2a 0d0a  0..Accept:.*/*..
+	0x0080:  0d0a
+
+服务端 seq: 1699973462, ack: 1735966165, flag = ack                            ..
+14:56:58.528741 IP (tos 0x20, ttl 48, id 21532, offset 0, flags [DF], proto TCP (6), length 52)
+    168.63.246.148.80 > 172.168.1.26.54691: Flags [.], cksum 0x8e5e (correct), ack 79, win 227, options [nop,nop,TS val 1203887434 ecr 1026379456], length 0
+	0x0000:  4520 0034 541c 4000 3006 a9f1 a83f f694  E..4T.@.0....?..
+	0x0010:  aca8 011a 0050 d5a3 6553 8956 6778 bdd5  .....P..eS.Vgx..
+	0x0020:  8010 00e3 8e5e 0000 0101 080a 47c1 dd4a  .....^......G..J
+	0x0030:  3d2d 4ec0                                =-N.
+
+
+服务端发送请求的返回消息 seq = 1699973462, ack = 1735966165, flag = (ack, psh)
+14:56:58.531406 IP (tos 0x20, ttl 48, id 21533, offset 0, flags [DF], proto TCP (6), length 290)
+    168.63.246.148.80 > 172.168.1.26.54691: Flags [P.], cksum 0x0002 (correct), seq 1:239, ack 79, win 227, options [nop,nop,TS val 1203887435 ecr 1026379456], length 238: HTTP, length: 238
+	HTTP/1.1 200 OK
+	Server: nginx/1.14.1
+	Date: Wed, 05 Dec 2018 06:56:58 GMT
+	Content-Type: text/html
+	Content-Length: 612
+	Last-Modified: Sun, 02 Dec 2018 15:02:58 GMT
+	Connection: keep-alive
+	ETag: "5c03f422-264"
+	Accept-Ranges: bytes
+
+	0x0000:  4520 0122 541d 4000 3006 a902 a83f f694  E.."T.@.0....?..
+	0x0010:  aca8 011a 0050 d5a3 6553 8956 6778 bdd5  .....P..eS.Vgx..
+	0x0020:  8018 00e3 0002 0000 0101 080a 47c1 dd4b  ............G..K
+	0x0030:  3d2d 4ec0 4854 5450 2f31 2e31 2032 3030  =-N.HTTP/1.1.200
+	0x0040:  204f 4b0d 0a53 6572 7665 723a 206e 6769  .OK..Server:.ngi
+	0x0050:  6e78 2f31 2e31 342e 310d 0a44 6174 653a  nx/1.14.1..Date:
+	0x0060:  2057 6564 2c20 3035 2044 6563 2032 3031  .Wed,.05.Dec.201
+	0x0070:  3820 3036 3a35 363a 3538 2047 4d54 0d0a  8.06:56:58.GMT..
+	0x0080:  436f 6e74 656e 742d 5479 7065 3a20 7465  Content-Type:.te
+	0x0090:  7874 2f68 746d 6c0d 0a43 6f6e 7465 6e74  xt/html..Content
+	0x00a0:  2d4c 656e 6774 683a 2036 3132 0d0a 4c61  -Length:.612..La
+	0x00b0:  7374 2d4d 6f64 6966 6965 643a 2053 756e  st-Modified:.Sun
+	0x00c0:  2c20 3032 2044 6563 2032 3031 3820 3135  ,.02.Dec.2018.15
+	0x00d0:  3a30 323a 3538 2047 4d54 0d0a 436f 6e6e  :02:58.GMT..Conn
+	0x00e0:  6563 7469 6f6e 3a20 6b65 6570 2d61 6c69  ection:.keep-ali
+	0x00f0:  7665 0d0a 4554 6167 3a20 2235 6330 3366  ve..ETag:."5c03f
+	0x0100:  3432 322d 3236 3422 0d0a 4163 6365 7074  422-264"..Accept
+	0x0110:  2d52 616e 6765 733a 2062 7974 6573 0d0a  -Ranges:.bytes..
+	0x0120:  0d0a
+
+服务端发送请求的返回消息  seq = 1699973700, ack = 1735966165, flag = (ack, psh)
+14:56:58.531410 IP (tos 0x20, ttl 48, id 21534, offset 0, flags [DF], proto TCP (6), length 664)
+    168.63.246.148.80 > 172.168.1.26.54691: Flags [P.], cksum 0xcf37 (correct), seq 239:851, ack 79, win 227, options [nop,nop,TS val 1203887435 ecr 1026379456], length 612: HTTP
+	0x0000:  4520 0298 541e 4000 3006 a78b a83f f694  E...T.@.0....?..
+	0x0010:  aca8 011a 0050 d5a3 6553 8a44 6778 bdd5  .....P..eS.Dgx..
+	0x0020:  8018 00e3 cf37 0000 0101 080a 47c1 dd4b  .....7......G..K
+	0x0030:  3d2d 4ec0 3c21 444f 4354 5950 4520 6874  =-N.<!DOCTYPE.ht
+	0x0040:  6d6c 3e0a 3c68 746d 6c3e 0a3c 6865 6164  ml>.<html>.<head
+	0x0050:  3e0a 3c74 6974 6c65 3e57 656c 636f 6d65  >.<title>Welcome
+	0x0060:  2074 6f20 6e67 696e 7821 3c2f 7469 746c  .to.nginx!</titl
+	0x0070:  653e 0a3c 7374 796c 653e 0a20 2020 2062  e>.<style>.....b
+	0x0080:  6f64 7920 7b0a 2020 2020 2020 2020 7769  ody.{.........wi
+	0x0090:  6474 683a 2033 3565 6d3b 0a20 2020 2020  dth:.35em;......
+	0x00a0:  2020 206d 6172 6769 6e3a 2030 2061 7574  ...margin:.0.aut
+	0x00b0:  6f3b 0a20 2020 2020 2020 2066 6f6e 742d  o;.........font-
+	0x00c0:  6661 6d69 6c79 3a20 5461 686f 6d61 2c20  family:.Tahoma,.
+	0x00d0:  5665 7264 616e 612c 2041 7269 616c 2c20  Verdana,.Arial,.
+	0x00e0:  7361 6e73 2d73 6572 6966 3b0a 2020 2020  sans-serif;.....
+	0x00f0:  7d0a 3c2f 7374 796c 653e 0a3c 2f68 6561  }.</style>.</hea
+	0x0100:  643e 0a3c 626f 6479 3e0a 3c68 313e 5765  d>.<body>.<h1>We
+	0x0110:  6c63 6f6d 6520 746f 206e 6769 6e78 213c  lcome.to.nginx!<
+	0x0120:  2f68 313e 0a3c 703e 4966 2079 6f75 2073  /h1>.<p>If.you.s
+	0x0130:  6565 2074 6869 7320 7061 6765 2c20 7468  ee.this.page,.th
+	0x0140:  6520 6e67 696e 7820 7765 6220 7365 7276  e.nginx.web.serv
+	0x0150:  6572 2069 7320 7375 6363 6573 7366 756c  er.is.successful
+	0x0160:  6c79 2069 6e73 7461 6c6c 6564 2061 6e64  ly.installed.and
+	0x0170:  0a77 6f72 6b69 6e67 2e20 4675 7274 6865  .working..Furthe
+	0x0180:  7220 636f 6e66 6967 7572 6174 696f 6e20  r.configuration.
+	0x0190:  6973 2072 6571 7569 7265 642e 3c2f 703e  is.required.</p>
+	0x01a0:  0a0a 3c70 3e46 6f72 206f 6e6c 696e 6520  ..<p>For.online.
+	0x01b0:  646f 6375 6d65 6e74 6174 696f 6e20 616e  documentation.an
+	0x01c0:  6420 7375 7070 6f72 7420 706c 6561 7365  d.support.please
+	0x01d0:  2072 6566 6572 2074 6f0a 3c61 2068 7265  .refer.to.<a.hre
+	0x01e0:  663d 2268 7474 703a 2f2f 6e67 696e 782e  f="http://nginx.
+	0x01f0:  6f72 672f 223e 6e67 696e 782e 6f72 673c  org/">nginx.org<
+	0x0200:  2f61 3e2e 3c62 722f 3e0a 436f 6d6d 6572  /a>.<br/>.Commer
+	0x0210:  6369 616c 2073 7570 706f 7274 2069 7320  cial.support.is.
+	0x0220:  6176 6169 6c61 626c 6520 6174 0a3c 6120  available.at.<a.
+	0x0230:  6872 6566 3d22 6874 7470 3a2f 2f6e 6769  href="http://ngi
+	0x0240:  6e78 2e63 6f6d 2f22 3e6e 6769 6e78 2e63  nx.com/">nginx.c
+	0x0250:  6f6d 3c2f 613e 2e3c 2f70 3e0a 0a3c 703e  om</a>.</p>..<p>
+	0x0260:  3c65 6d3e 5468 616e 6b20 796f 7520 666f  <em>Thank.you.fo
+	0x0270:  7220 7573 696e 6720 6e67 696e 782e 3c2f  r.using.nginx.</
+	0x0280:  656d 3e3c 2f70 3e0a 3c2f 626f 6479 3e0a  em></p>.</body>.
+	0x0290:  3c2f 6874 6d6c 3e0a                      </html>.
+
+
+客户端ack，seq = 1735966165, ack = 1699973700, flag = ack
+14:56:58.531456 IP (tos 0x0, ttl 64, id 0, offset 0, flags [DF], proto TCP (6), length 52)
+    172.168.1.26.54691 > 168.63.246.148.80: Flags [.], cksum 0x7dfa (correct), ack 239, win 4098, options [nop,nop,TS val 1026379542 ecr 1203887435], length 0
+	0x0000:  4500 0034 0000 4000 4006 ee2d aca8 011a  E..4..@.@..-....
+	0x0010:  a83f f694 d5a3 0050 6778 bdd5 6553 8a44  .?.....Pgx..eS.D
+	0x0020:  8010 1002 7dfa 0000 0101 080a 3d2d 4f16  ....}.......=-O.
+	0x0030:  47c1 dd4b                                G..K
+
+
+客户端ack, seq = 1735966165, ack = 1699974312, flag = ack
+14:56:58.531457 IP (tos 0x0, ttl 64, id 0, offset 0, flags [DF], proto TCP (6), length 52)
+    172.168.1.26.54691 > 168.63.246.148.80: Flags [.], cksum 0x7baa (correct), ack 851, win 4078, options [nop,nop,TS val 1026379542 ecr 1203887435], length 0
+	0x0000:  4500 0034 0000 4000 4006 ee2d aca8 011a  E..4..@.@..-....
+	0x0010:  a83f f694 d5a3 0050 6778 bdd5 6553 8ca8  .?.....Pgx..eS..
+	0x0020:  8010 0fee 7baa 0000 0101 080a 3d2d 4f16  ....{.......=-O.
+	0x0030:  47c1 dd4b                                G..K
+
+### 挥手
+客户端挥手 seq = 1735966165, ack = 1699974312, flag = (ack, fin)
+14:56:58.531677 IP (tos 0x0, ttl 64, id 0, offset 0, flags [DF], proto TCP (6), length 52)
+    172.168.1.26.54691 > 168.63.246.148.80: Flags [F.], cksum 0x7b97 (correct), seq 79, ack 851, win 4096, options [nop,nop,TS val 1026379542 ecr 1203887435], length 0
+	0x0000:  4500 0034 0000 4000 4006 ee2d aca8 011a  E..4..@.@..-....
+	0x0010:  a83f f694 d5a3 0050 6778 bdd5 6553 8ca8  .?.....Pgx..eS..
+	0x0020:  8011 1000 7b97 0000 0101 080a 3d2d 4f16  ....{.......=-O.
+	0x0030:  47c1 dd4b                                G..K
+
+服务端挥手 seq = 1699974312, ack = 1735966166, flag = (ack, fin)
+14:56:58.617097 IP (tos 0x20, ttl 48, id 21535, offset 0, flags [DF], proto TCP (6), length 52)
+    168.63.246.148.80 > 172.168.1.26.54691: Flags [F.], cksum 0x8a57 (correct), seq 851, ack 80, win 227, options [nop,nop,TS val 1203887527 ecr 1026379542], length 0
+	0x0000:  4520 0034 541f 4000 3006 a9ee a83f f694  E..4T.@.0....?..
+	0x0010:  aca8 011a 0050 d5a3 6553 8ca8 6778 bdd6  .....P..eS..gx..
+	0x0020:  8011 00e3 8a57 0000 0101 080a 47c1 dda7  .....W......G...
+	0x0030:  3d2d 4f16                                =-O.
+
+客户端再挥手 seq = 1735966166, ack = 1699974313, flag = (ack)
+14:56:58.617428 IP (tos 0x0, ttl 64, id 0, offset 0, flags [DF], proto TCP (6), length 52)
+    172.168.1.26.54691 > 168.63.246.148.80: Flags [.], cksum 0x7ae5 (correct), ack 852, win 4096, options [nop,nop,TS val 1026379627 ecr 1203887527], length 0
+	0x0000:  4500 0034 0000 4000 4006 ee2d aca8 011a  E..4..@.@..-....
+	0x0010:  a83f f694 d5a3 0050 6778 bdd6 6553 8ca9  .?.....Pgx..eS..
+	0x0020:  8010 1000 7ae5 0000 0101 080a 3d2d 4f6b  ....z.......=-Ok
+	0x0030:  47c1 dda7                                G...
+

@@ -1,0 +1,159 @@
+# maven
+构建工具，依赖管理工具，项目信息管理工具
+
+### settings.xml
+```
+换源 找到 $MAVEN_HOME/conf/settings.xml
+<mirrors>
+    <mirror>
+        <id>nexus-aliyun</id>
+        <mirrorOf>*</mirrorOf>
+        <name>Nexus aliyun</name>
+        <url>http://maven.aliyun.com/nexus/content/groups/public</url>
+    </mirror>
+</mirrors>
+
+代理
+<proxies>
+    <proxy>
+        <id></id>
+        <active>true</active>
+        <protocol>http</protocol>
+        <host>...</host>
+        <port>...</port>
+        <username>...</username>
+        <password>...</password>
+        <nonProxyHosts>...</nonProxyHosts>
+    </proxy>
+</proxies>
+```
+
+### POM
+POM(project object model，项目对象模型)定义了项目的基本信息，用于描述项目如何构建，声明项目依赖等等。
+project是所有pom.xml的根元素
+modelVersion指定了当前pom的版本(不用管)
+groupId定义了项目属于哪个组，artifactId定义当前maven项目在组中的唯一id,version指定项目当前的版本
+
+### 项目代码
+项目主代码一般在src/main/java中，最终会被打包到jar中。注意包名要和groupId,artifactId吻合，这样更加清晰，也更加符合逻辑。代码编写完成后，使用
+
+```bash
+mvn clean compile
+mvn clean test
+mvn clean package 打包到target/目录下
+mvn clean install 把jar安装到本地的maven仓库中
+```
+
+默认打包生成的jar是不能够直接运行的，因为带有main方法的类信息不会添加到manifest中。为了生成可执行的jar文件，需要借助maven-shade-plugin。
+
+### 使用Archetype生成项目骨架
+```
+mvn archetype:generate
+```
+
+### dependencies
+```
+groupId, artifactId, version
+
+type 一般不用写，表示打包方法
+
+scope:  compile(默认)/test(仅用于测试)/provided(编译时有效运行时无效)/runtime(运行时依赖，编译时无效)/system(系统依赖范围)
+
+optional 可选依赖
+
+exclusions 依赖排除
+```
+
+maven有传递性依赖机制，不过依赖的传递性与classpath有关系，需要注意。
+
+maven中还有可选依赖的概念。举例来说，如果A依赖B，B可选依赖X，和Y。则当A中要引用B的时候，依旧需要显示的引入依赖X或Y
+
+### 远程仓库的配置
+```
+<repositories>
+    <repository>
+        <id>jboss</id>
+        <name>JBoss Repository</name>
+        <url>http://repository.jboss.com/maven2/</url>
+        <releases>
+            <enabled>true</enabled>  下载发布版本
+        </releases>
+        <snapshots>
+            <enabled>false</enabled>  不下载snapshot版本
+        </snapshots>
+        <layout>default</layout>
+    </repository>
+</repositories>
+```
+
+### maven的三套生命周期
+```
+clean: 清理项目
+pre-clean/clean/post-clean
+
+default: 构建项目
+validate
+initialize
+generate-sources
+process-sources 处理项目主资源文件
+generate-resources
+process-resources
+compile 编译项目的主源码
+process-classes
+generate-test-sources
+process-test-sources 处理项目测试资源文件
+generate-test-resources
+process-test-resources
+test-compile 编译项目的测试代码
+process-test-classes
+test 运行测试
+prepare-package
+package 接受编译好的代码并打包
+pre-Integration-test
+integration-test
+post-integration-test
+verify
+install 把包安装到本地仓库
+deploy  把最终的包复制到远程仓库
+
+site: 建立项目站点
+pre-site
+site
+post-site
+site-deploy
+```
+
+### maven 插件
+一部分是在maven的生命周期中调用，比如compile，另一部分是在命令行调用的
+```
+mvn help:describe -Dplugin=org.apache.maven.plugins:maven-help-plugin
+
+mvn dependency:tree
+```
+
+
+### 使用maven进行测试 190-212
+不想测试可以跳过
+mvn package -DskipTests
+
+动态指定要运行的测试用例(指定类名)
+mvn test -Dtest = RandomGeneratorTest
+
+cobertura-maven-plugin可以为maven项目生成测试覆盖率报告
+
+```
+mvn cobertura:cobertura
+```
+
+### 版本管理
+版本号约定：
+主版本.次版本.增量版本-里程碑版本，例如1.3.4-beta-2
+
+maven-release-plugin自动化版本发布
+
+```
+release:prepare 准备版本发布
+release:rollback 回退准备过程
+release:perform 发布（签出源代码并执行mvn deploy）
+```
+

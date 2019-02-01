@@ -1,0 +1,42 @@
+cmd + r   运行
+
+cmd + 0   左边栏
+cmd + 12345678
+
+cmd + option + 0  右边栏
+cmd + option + 123456789
+
+cmd + shift + y debugger
+
+cmd + option + enter   助手编辑器
+
+cmd + shift + o 快速文件跳转
+
+ctrl + i  快速格式化
+
+在辅助编辑器中打开文件:在项目导航器中选中文件执行Option+左键点击操作。
+文件跳转栏:Control+6（键入方法/变量名+⏎跳转）
+快速打开: Command + ⇧ + O
+
+跳转栏和快速打开搜索输入快捷键
+键入第一个字母即可快速切换至某个文件或者找到特定的代码行。比如，在ViewController.Swift文件中，按下Command + ⇧ + O，然后键入vDL，最先展示的结果是带有
+viewDidLoad()名的函数。
+
+运行app: Command + R
+
+清除工程: Command + ⇧ + K
+
+构建应用程序: Command + B
+
+文档和参考: Command + ⇧ + 0 (Zero)
+
+快速帮助: 在类或者方法名上执行⌥ + click操作
+
+查看文档：⇧ + ⌘ + 0
+
+用好snippet并学会创建
+
+⌥ + click 查看概要
+
+command + click 控制修改查看等等
+

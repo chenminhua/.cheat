@@ -1,0 +1,11 @@
+# 硬链接，软链接，符号链接
+硬链接，指向同一个inode的不同路径的文件，删了一个另一个还能用
+软链接，文件指向的inode指向另一个文件的路径，删了原文件链接文件不能用
+[IBM博客](https://www.ibm.com/developerworks/cn/linux/l-cn-hardandsymb-links/index.html)
+
+
+# To create a symlink:
+ln -s path/to/the/target/directory name-of-symlink
+
+# Symlink, while overwriting existing destination files
+ln -sf /some/dir/exec /usr/bin/exec

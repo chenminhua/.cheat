@@ -1,0 +1,22 @@
+# notebook
+
+conda install jupyter
+conda install ipykernel
+python -m ipykernel install --user --name mykernel
+
+打开notebook
+jupyter notebook
+
+查看notebook kernels
+jupyter kernelspec list
+
+移除notebook kernel
+jupyter kernelspec remove xxx
+
+代码提示：tab键
+
+## magic function
+%time foo()
+%prun foo()
+%magic
+%quickref

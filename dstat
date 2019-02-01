@@ -1,0 +1,3 @@
+dstat
+
+alias dstat='dstat -cdlmnpsy'

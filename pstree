@@ -1,0 +1,7 @@
+yum install psmisc
+
+pstree
+
+pstree -p pid
+
+pstree -apnh

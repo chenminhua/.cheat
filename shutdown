@@ -1,0 +1,9 @@
+shutdown -h now 立即关机
+shutdown -h 23:30 定时关机
+shutdown -h +15 十五分钟后关机
+halt 关机
+poweroff 关机
+init 0 关机
+reboot 重启
+init 6 重启
+shutdown -r now 立即重启

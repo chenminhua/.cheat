@@ -1,0 +1,48 @@
+dep init 创建新项目
+
+dep check 查看你的项目是不是没有同步
+
+
+
+## dep ensure
+
+dep依赖你代码中的import语句来判断你有哪些依赖
+
+dep ensure 是最主要的工作命令
+    增加新的依赖
+    更新已经有的依赖
+    catch up新引入的package，删除不需要的依赖
+    catch up to a change to a rule in Gopkg.toml
+
+增加新的依赖
+dep ensure -add github.com/pkg/errors
+
+更新依赖
+dep ensure -update github.com/foo/bar
+
+更新全部依赖（非常不推荐）
+dep ensure -update
+
+dep status 查看你项目的状态
+
+
+
+# Gopkg.toml
+required 被项目需要的packages的列表
+
+ignored 避免将某些packages加入依赖
+
+[[constraint]] 直接依赖的相关信息
+
+[[override]]
+
+[prune] 全局和每个项目规则，用于管理应从供应商/中删除哪些类型的文件
+
+
+
+## 图形化展示依赖关系
+mac上
+dep status -dot | dot -T png | open -f -a /Applications/Preview.app
+linux上
+dep status -dot | dot -T png | display
+

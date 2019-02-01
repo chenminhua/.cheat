@@ -1,0 +1,106 @@
+# Iterator 和 Generator 和 异步操作
+任何数据结构只要部署Iterator接口，就可以完成遍历操作（即依次处理该数据结构的所有成员）。Iterator接口主要供for...of消费。
+
+每一次调用next方法，都会返回数据结构的当前成员的信息。具体来说，就是返回一个包含value和done两个属性的对象。其中，value属性是当前成员的值，done属性是一个布尔值，表示遍历是否结束。
+
+```js
+// Symbol.iterator方法的最简单实现，还是使用Generator函数。
+class FibIterator{
+    constructor(a, b){
+            this.a = 0;
+            this.b = 1;
+          
+    }
+
+    * [Symbol.iterator](){
+        while(true){
+                  [this.a,this.b] = [this.b,this.a+this.b]
+                  yield this.b;
+                
+        }
+          
+    }
+
+}
+
+var fetch = require('node-fetch');
+
+function* gen(){
+      var url = 'https://api.github.com/users/github';
+      var result = yield fetch(url);
+      console.log(result.bio);
+
+}
+
+var g = gen();   //获取iterator
+var result = g.next();  //执行到第一个yield,返回一个promise
+
+result.value.then(function(data){
+      return data.json();
+
+}).then(function(data){
+      g.next(data);  //promise得到数据后调用next返回iterator中运行
+
+});
+```
+
+# async
+async函数就是Generator函数的语法糖，返回一个Promise对象。async函数返回的Promise对象，必须等到内部所有await命令的Promise对象执行完，才会发生状态改变。也就是说，只有async函数内部的异步操作执行完，才会执行then方法指定的回调函数。async内部return的值会被then捕获到
+
+# class
+```js
+class Point{
+        constructor(x,y){  //构造函数，默认返回实例对象
+                                [this.x, this.y] = [x, y];
+                            }
+
+}
+Point === Point.prototype.constructor   // true
+
+class Point{
+        constructor(){}
+        toString(){}
+        toValue(){}
+
+}
+//事实上,类的所有方法都定义在类的prototype上，等同于
+Object.assign(Point.prototype, {
+        toString(){},
+        toValue(){}
+
+});
+
+// 每一个对象都有__proto__属性，指向对应的构造函数的prototype属性,
+// __proto__ 属于实例，而prototype属于类（构造函数）
+class B extends A{}
+
+// 子类（构造函数也有__proto__）的__proto__属性，表示构造函数的继承，总指向父类
+B.__proto__ === A   //true
+// 子类的prototype属性的__proto__属性，表示方法的继承，总指向父类的prototype属性
+B.prototype.__proto__ === A.prototype
+Object.getPrototypeOf(ColorPoint) === Point  //true, 判断继承
+```
+
+# 装饰器
+```js
+const cacheChecker = (index) => (target, key, descriptor) => {
+      const method = descriptor.value;
+    return Object.assign({}, descriptor, {
+            value: (...args) => {
+                if (!args[index] || !args[index].globalCache) {
+                            return null;
+                          
+                }
+                      return method.apply(target, args);
+                    
+            },
+          
+    });
+
+};
+```
+
+# node内存泄露排查
+node-heapdump
+node-memwatch
+

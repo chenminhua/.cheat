@@ -1,0 +1,33 @@
+# Display all interfaces with addresses
+ip addr
+
+# 开启和关闭网卡
+ip link set dev wlan0 {up|down}
+
+# 为某一张卡增加或删除ip
+ip addr add 192.168.1.100/32 dev eth0
+ip addr del 192.168.1.100/32 dev eth0
+ip addr add 192.168.1.100/32 dev eth0 label enp0s3:1
+
+# 删除某张卡的所有ip
+ip addr flush dev eth0
+
+# 显示所有路由表（ipv4/6）
+ip route
+ip -6 route
+
+# 增加默认路由
+ip route add default via 192.168.1.1
+
+# 为某一张网卡增加/删除某个路由规则
+ip route add 192.168.0.0/24 dev eth0
+ip route flush to 192.168.0.0/24 dev eth0
+
+# 修改某一张网卡的ip地址 
+ip link set dev eth0 address aa:bb:cc:dd:ee:ff
+
+# View neighbors (using ARP and NDP) 
+ip neighbor show
+
+# 查看组播信息
+ip maddr list dev eth0

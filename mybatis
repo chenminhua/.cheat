@@ -1,0 +1,132 @@
+关注点分离
+	前后端分离
+	业务逻辑与数据逻辑分离 （service和 data access object (DAO)）
+Mybatis就是用于分离业务逻辑和数据逻辑的框架
+mybatis提供了sql语句执行结果与对象树的映射。
+通过使用一种內建的类xml表达式语言，sql可以动态生成。
+mybatis支持声明式缓存。默认基于hashmap(没啥用)
+
+
+
+# 过程
+每个mybatis的应用都是基于SqlSessionFactory出发的。
+SqlSessionFactory的实例可以通过SqlSessionFactoryBuilder获得。
+SqlSessionFactory会读取全部的mapper.xml进行解析，包含所有的属性配置和执行sql的信息。
+从SqlSessionFactory中获取SqlSession.
+sqlSession执行相应方法查找到配置的sql，调用底层的JDBC执行查询（sqlSession还负责事务的控制）。
+获得查询结果集ResultSet后，根据resultType的配置将结果映射为具体对象。
+关闭sqlSession
+
+# xml配置
+mybatis使用java动态代理可以直接通过接口来调用相应方法。
+当有多个参数时可以通过参数注解@Param设置参数的名字 (@Param会自动将参数封装成Map类型，@Param参数也可以接收javaBean对象)。
+
+# 动态代理
+mybatis采用的是jdk代理模式
+类： java.lang.reflect.Proxy
+接口： InvocationHandler
+只能基于接口进行动态代理。
+
+当你调用某个接口的方法时，这次调用会被转换为对代理的invoke的调用，代理会去找到相应的sql，并注入相应的参数，再去调用jdbc...
+
+
+
+# 动态sql
+if
+choose(when, otherwise)
+trim(where, set)
+foreach
+bind
+
+## if
+```
+where 1 = 1
+<if test="userName != null and userEmail != ''">
+and user_name like concat('%', #{userName}, '%')
+</if>
+<if test="userEmail != null and userEmail != ''">
+and user_email = #{userEmail}
+</if>
+```
+
+## choose, when, otherwise
+根据用户id或用户名去查询
+
+```
+where 1 = 1
+<choose>
+    <when test="id != null">
+        and id = #{id}
+    </when>
+    <when test="userName != null and userName != ''">
+        and user_name = #{userName}
+    </when>
+    <otherwise>
+    and 1 = 2
+    </otherwise>
+</choose>
+```
+
+## trim, where, set
+```
+<where>
+    <if test="userName != null and userName != ''">
+        and user_name like concat('%', #{userName}, '%')
+    </if>
+    <if test="userEmail != '' and userEmail != null">
+        and user_email = #{userEmail}
+    </if>
+</where>
+```
+
+## foreach 用法
+```
+where id in 
+<foreach collection="list" open="(" close=")" separator="," item="id" index="id">
+#{id}
+</foreach>
+collection为要迭代循环的属性名称
+item为变量名称，即从迭代对象中取出的属性值
+index为索引的属性名称
+```
+
+## bind用法 （创建变量并绑定到上下文）
+<if test="userName != null and userName != ''">
+    <bind name="userNameLike" value="'%' + userName + '%'">
+    and user_name like #{userNameLike}
+</if>
+
+## OGNL表达式
+e1 or e2, e1 and e2, not e, e1 == e2, e1 != e2
+e1 lt e2, e1 lte e2, e1 gt e2, e1 gte e2
+e.method(args)
+e.property
+e1[e2]
+
+# 高级结果映射
+
+## 一对一
+## 一对多
+
+## 鉴别器映射
+有时一个单独的数据库查询会返回很多不同数据类型的结果集，discriminator鉴别器标签就是用来处理这种情况的。
+
+# 存储过程
+
+# 使用枚举或其他对象
+
+# 缓存
+一级缓存存在于同一个SqlSession中，如果要跳过一级缓存，可以加上flushCache="true".
+二级缓存可以理解为存在于SqlSessionFactory生命周期中。
+mybatis-redis
+
+# 插件开发
+mybatis允许在已映射语句执行过程中的某个点进行拦截调用。
+Executor(update, query, flushStatements, commit, rollback, getTransaction, close, isClosed)
+ParameterHandler(getParameterObject, SetParameters)
+ResultSetHandler(handleResultSets, handleCursorResultSets, handleOutputParameters)
+StatementHandler(prepare, parameterize, batch, update, query)
+
+# 日志配置
+
+# 作用域和生命周期

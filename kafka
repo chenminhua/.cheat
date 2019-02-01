@@ -1,0 +1,23 @@
+# create topic
+kafka-topics.sh --zookeeper <zookeeper connect> --create --topic <string>
+    --replication-factor <integer> --partitions <integer>
+
+kafka-topics.sh --zookeeper zoo1.example.com:2181/kafka-cluster --create --topic my-topic --replication-factor 2 --partitions 8
+
+# add partition
+kafka-topics.sh --zookeeper zoo1.example.com:2181/kafka-cluster --alter --topic my-topic --partitions 16
+
+# delete topic
+kafka-topics.sh --zookeeper zoo1.example.com:2181/kafka-cluster --delete --topic my-topic
+
+# list all topic 
+kafka-topics.sh --zookeeper zoo1.example.com:2181/kafka-cluster --list
+
+# describing topic details
+kafka-topics.sh --zookeeper zoo1.example.com:2181/kafka-cluster --describe
+
+
+# delete group
+kafka-consumer-groups.sh --zookeeper zoo1.example.com:2181/kafka-cluster --delete --group testgroup
+
+# 

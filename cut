@@ -1,0 +1,12 @@
+# To cut out the third field of text or stdoutput that is delimited by a #:
+cut -d# -f3
+
+cut -d: -f1 /etc/passwd | sort | tr 'a-z' 'A-Z'
+
+
+
+
+- 假设你有一个类似于 web 服务器日志文件的文本文件，并且一个确定的值只会出现在某些行上，假设一个 `acct_id` 参数在 URI 中。如果你想计算出每个 `acct_id` 值有多少次请求，使用如下代码：
+```sh
+      egrep -o 'acct_id=[0-9]+' access.log | cut -d= -f2 | sort | uniq -c | sort -rn
+```

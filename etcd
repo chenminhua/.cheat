@@ -1,0 +1,63 @@
+etcd 
+--name etcd1 
+--initial-advertise-peer-urls http://10.2.10.5:2380
+ --listen-peer-urls http://10.2.10.5:2380
+ --listen-client-urls http://10.2.10.5:2379,http://127.0.0.1:2379
+ --advertise-client-urls http://10.2.10.5:2379
+ --initial-cluster-token etcd-cluster-1 
+--initial-cluster etcd0=http://10.2.10.4:2380,etcd1=http://10.2.10.5:2380,etcd2=http://10.2.10.6:2380 --initial-cluster-state new
+
+
+etcd 
+--name etcd0 
+--initial-advertise-peer-urls http://10.2.10.4:2380
+ --listen-peer-urls http://10.2.10.4:2380
+ --listen-client-urls http://10.2.10.4:2379,http://127.0.0.1:2379
+ --advertise-client-urls http://10.2.10.4:2379
+ --initial-cluster-token etcd-cluster-1 
+--initial-cluster etcd0=http://10.2.10.4:2380,etcd1=http://10.2.10.5:2380,etcd2=http://10.2.10.6:2380 --initial-cluster-state new
+
+
+etcd 
+--name etcd2
+--initial-advertise-peer-urls http://10.2.10.6:2380
+ --listen-peer-urls http://10.2.10.6:2380
+ --listen-client-urls http://10.2.10.6:2379,http://127.0.0.1:2379
+ --advertise-client-urls http://10.2.10.6:2379
+ --initial-cluster-token etcd-cluster-1 
+--initial-cluster etcd0=http://10.2.10.4:2380,etcd1=http://10.2.10.5:2380,etcd2=http://10.2.10.6:2380 --initial-cluster-state new
+
+
+
+
+
+# etcdctl
+```
+# 设置api版本
+export ETCDCTL_API=3
+
+etcdctl put foo bar
+
+etcdctl get foo
+etcdctl get foo --print-value-only
+
+etcdctl get --prefix foo 获取foo为前缀的所有键值
+etcdctl get --prefix --limit=2 foo 获取foo为前缀的两组键值
+
+etcdctl get --prefix --rev=4 foo 访问修订版本为4时的版本
+
+etcdctl del foo    删除键
+etcdctl del --prev-kv foo   删除前缀为foo的键并返回 
+
+etcdctl watch foo   观察一个键或者范围内的键来监控更新
+
+etcdctl watch --rev=2 foo    从版本2开始观察键的改动
+
+## 授予租约
+etcdctl lease grant 10
+## lease 32695410dcc0ca06 granted with TTL(10s)
+etcdctl put --lease=32695410dcc0ca06 foo bar
+
+## 撤销租约
+etcdctl lease revoke 32695410dcc0ca06
+```

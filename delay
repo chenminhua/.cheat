@@ -1,0 +1,15 @@
+cpu                  0.3ns
+l1 cache             0.9ns
+l2 cache             2.8ns
+l3 cache             12.9ns
+内存                 120ns
+ssd                  50-150微妙
+磁盘IO               1-10ms
+局域网               <1ms
+网络（跨城）         40ms
+网络（跨国）         100-200ms
+TCP重传              1-3s
+虚拟机重启           4s
+SCSI超时             30s
+硬件虚拟化系统重启   40s
+物理系统重启         5m

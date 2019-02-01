@@ -1,0 +1,7 @@
+从标准输入读取数据，并同时写到标准输出和标准错误
+
+# To tee stdout to a file:
+ls | tee outfile.txt
+
+# To tee stdout and append to a file:
+ls | tee -a outfile.txt

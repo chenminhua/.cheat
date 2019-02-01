@@ -1,0 +1,25 @@
+k scale deployment nginx-deployment --replicas=4
+
+kubectl set image deployment/nginx-deployment nginx=nginx:1.9.1
+
+k edit deploy nginx-deployment
+
+
+
+######## 滚动更新和版本控制
+# 注意，在这里，我额外加了一个--record 参数。它的作用，是记录下你每次操作所执行的命令，以方便后面查看。
+k create -f nginx-deployment.yaml --record
+
+# 而 Kubernetes 项目还为我们提供了一条指令，让我们可以实时查看 Deployment 对象的状态变化。
+kubectl rollout status deployment/nginx-deployment
+
+# 如何回滚到之前的一个版本
+kubectl rollout undo deployment/nginx-deployment
+
+# 如何查看之前的历史版本
+kubectl rollout history deployment/nginx-deployment
+
+# 如何回滚到之前的某一个版本(比如版本号为2)
+kubectl rollout undo deployment/nginx-deployment --to-revision=2
+
+

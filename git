@@ -1,0 +1,132 @@
+# To set your identity:
+git config --global user.name "John Doe"
+git config --global user.email johndoe@example.com
+
+# To set your editor:
+git config --global core.editor emacs
+
+# To enable color:
+git config --global color.ui true
+
+## git stash 
+git stash save 'message'   #保存stash
+git stash -u               #保存当前状态，包括untracked的文件
+git stash list             #展示所有stashes
+git stash apply <stash@{n}> #应用某个stash的状态
+git stash pop               #删除并应用某个stash
+git stash clear             #删除所有stash
+
+# Git commit in the past
+git commit --date="`date --date='2 day ago'`"
+git commit --date="Jun 13 18:30:25 IST 2015"
+# more recent versions of Git also support --date="2 days ago" directly
+
+# To change the date of an existing commit
+git filter-branch --env-filter \
+    'if [ $GIT_COMMIT = 119f9ecf58069b265ab22f1f97d2b648faf932e0 ]
+     then
+         export GIT_AUTHOR_DATE="Fri Jan 2 21:38:53 2009 -0800"
+         export GIT_COMMITTER_DATE="Sat May 19 01:01:01 2007 -0700"
+     fi'
+
+# To go 2 commits back
+git reset --hard HEAD~2
+
+# git clean
+git clean -f -d       # 清除untracked的文件 
+git clean -f -d -x    # 清除untracked的文件和ignored的文件
+git clean -X -f    ## 清除gitignore文件中记录的文件
+
+# To push to the tracked master branch:
+git push origin master
+
+# To push to a specified repository:
+git push git@github.com:username/project.git
+
+# To make an exisiting branch track a remote branch
+git branch -u upstream/foo
+
+# To see who commited which line in a file
+git blame filename
+
+# To sync a fork with the master repo:
+git remote add upstream git@github.com:name/repo.git    # Set a new repo
+git remote -v                                           # Confirm new remote repo
+git fetch upstream                                      # Get branches
+git branch -va                                          # List local - remote branches
+git checkout master                                     # Checkout local master branch
+git checkout -b new_branch                              # Create and checkout a new branch
+git merge upstream/master                               # Merge remote into local repo
+git show 83fb499                                        # Show what a commit did.
+git show 83fb499:path/fo/file.ext                       # 展示任意分支某一文件的内容
+git diff branch_1 branch_2                              # Check difference between branches
+git log                                                 # Show all the commits
+
+# Commit history of a set of files
+git log --pretty=email --patch-with-stat --reverse --full-index -- Admin\*.py > Sripts.patch
+
+# Import commits from another repo
+git --git-dir=../some_other_repo/.git format-patch -k -1 --stdout <commit SHA> | git am -3 -k
+
+# View commits that will be pushed
+git log @{u}..
+
+# View changes that are new on a feature branch
+git log -p feature --not master
+git diff master...feature
+
+# Diff files WITHOUT considering them a part of git
+# This can be used to diff files that are not in a git repo!
+git diff --no-index path/to/file/A path/to/file/B
+
+
+# Create a bare branch (one that has no commits on it)
+git checkout --orphan branch_name
+
+# Checkout a new branch from a different starting point
+git checkout -b master upstream/master
+
+# Remove all stale branches (ones that have been deleted on remote)
+# So if you have a lot of useless branches, delete them on Github and then run this
+git remote prune origin
+
+# The following can be used to prune all remotes at once
+git remote prune $(git remote | tr '\n' ' ')
+
+# 反向操作某一个commit
+git revert <commit SHA>
+
+# 查看标签
+git tag
+
+# 展示当前分支的最近的tag
+git describe --tags --abbrev=0
+
+# 本地创建标签
+#git tag <version-number>
+
+#默认tag是打在最近的一次commit上，如果需要指定commit打tag：
+git tag -a <version-number> -m "v1.0 发布(描述)" <commit-id>
+
+# 推送标签到远程仓库
+git push origin <local-version-number>
+
+# 一次性推送所有标签，同步到远程仓库：
+git push origin --tags
+
+# 删除本地标签
+git tag -d <tag-name>
+
+# 删除远程标签
+#### 删除远程标签需要**先删除本地标签**，再执行下面的命令：
+git push origin :refs/tags/<tag-name>
+
+# 切回到某个标签
+#### 一般上线之前都会打tag，就是为了防止上线后出现问题，方便快速回退到上一版本。下面的命令是回到某一标签下的状态：
+git checkout -b branch_name tag_name
+
+# 抛弃本地所有的修改，回到远程仓库的状态。  
+git fetch --all && git reset --hard origin/master
+
+# 获取commit总数
+git log --pretty=format:'' | wc -l

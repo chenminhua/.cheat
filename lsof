@@ -1,0 +1,33 @@
+list open files
+
+# 所有ipv4/6文件
+sudo lsof -i4/6
+
+# 列出所有socket
+lsof -i
+
+# 列出所有监听端口s
+lsof -Pnl +M -i4
+
+# 查看打开80端口的程序
+lsof -i TCP:80
+
+# 查看打开指定文件的进程
+lsof </path/to/file>
+
+# 查看指定用户打开的文件
+lsof -u <username>
+
+# 查看指定命令打开的文件
+lsof -c <command-name>
+
+# 查看指定进程打开的文件
+lsof -p <pid>
+
+# List all files open mounted at /mount/point.
+# Particularly useful for finding which process(es) are using a
+# mounted USB stick or CD/DVD.
+lsof +f -- </mount/point>
+
+# See this primer: http://www.danielmiessler.com/study/lsof/
+# for a number of other useful lsof tips

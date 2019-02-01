@@ -1,0 +1,48 @@
+1. 模块化
+build a program out of simple parts connected by well defined interfaces, so problems are local
+
+2. 清晰，清楚
+代码写来是给人看的，顺便拿来跑一跑
+
+3. 组合
+我们写的代码要能够比较容易与其他程序组合，这有助于我们分割一个大型项目
+
+4. 分隔机制与策略
+separate the mechanisms of programs from the policies of the programs
+
+5. 简单
+简单很重要
+
+6. 简约
+不要写大程序，小的程序更容易优化和维护，以及被替换和删除
+
+7. 透明
+留下你的思考过程，让别人或者你自己在未来能够看懂
+
+8. 鲁棒
+
+9. Representation
+make data more complicated rather than the procedural logic of the program.复杂的数据比复杂的业务逻辑更容易理解
+
+10. 最小惊喜
+
+11. 沉默
+do not print unnecessary output
+
+12. repair
+要容易定位错误
+
+13. economy
+开发者时间 > 机器时间
+
+14. generation
+用代码生成代码，写高阶程序，减少人为错误并节省时间。
+
+15. 优化
+先prototype再优化，避免在边际收益上花费太多时间
+
+16. diversity
+flexible and open，灵活多样
+
+17. 可扩展
+plugins without modification

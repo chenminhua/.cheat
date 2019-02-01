@@ -1,0 +1,17 @@
+# 花括号展开
+> echo Front-{A,B,C}-Back
+Front-A-Back Front-B-Back Front-C-Back
+
+>  echo Number_{1..5}
+Number_1  Number_2  Number_3  Number_4  Number_5
+
+# 命令替换
+> ls -l $(which cp)
+-rwxr-xr-x 1 root root 71516 2007-12-05 08:58 /bin/cp
+
+# 双引号; 在双引号中，参数展开，算术表达式展开，和命令替换仍然有效:
+> echo "$USER $((2+2)) $(cal)"
+me 4    February 2008
+Su Mo Tu We Th Fr Sa
+
+# 如果需要禁止所有的展开，我们使用单引号。

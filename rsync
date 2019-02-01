@@ -1,0 +1,23 @@
+文件同步工具
+rsync -r blog blog_back/
+
+远端同步
+rsync -e "ssh -i ~/.ssh/ata" -avz blog azure@104.215.187.216:/home/azure/blog
+
+如果同步的时候要把本地删除的在远端也删除的话，要加上一个config， --delete
+rsync -e "ssh -i ~/.ssh/ata" -avz blog azure@104.215.187.216:/home/azure/blog --delete
+
+# To copy files from remote to local, maintaining file properties and sym-links (-a), zipping for faster transfer (-z), verbose (-v).  
+rsync -avz host:file1 :file1 /dest/
+rsync -avz /source host:/dest
+
+# Copy files using checksum (-c) rather than time to detect if the file has changed. (Useful for validating backups). 
+rsync -avc /source/ /dest/
+
+# Copy contents of /src/foo to destination:
+
+# This command will create /dest/foo if it does not already exist
+rsync -auv /src/foo /dest
+
+# Explicitly copy /src/foo to /dest/foo
+rsync -auv /src/foo/ /dest/foo

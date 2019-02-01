@@ -1,0 +1,133 @@
+## docker image
+虚悬镜像：没有仓库名也没有标签名，可以用下面的命令清除
+docker rmi $(docker images -q -f dangling=true)
+docker images --filter "dangling=true" -q | xargs docker rmi
+
+remote-dockerhub.com/namespace/repo.tag
+每个镜像由一系列layer组成，每个层都用64位16进制数表示（256bit）,image最上层的layer ID就是该镜像的ID。
+
+镜像默认存在 /var/lib/docker路径下面，该路径可以在启动docker daemon时指定
+docker images --digests  查看所有镜像和其摘要
+dockviz images -d | dot -Tpng -o images.png  查看镜像结构
+
+docker pull mysql 下载镜像
+docker search mysql 搜索镜像
+
+docker save -o mysql.tar mysql 导出镜像
+docker load -i mysql.tar  导入镜像
+
+docker inspect mysql 查看镜像信息
+docker build .               build一个image
+
+docker run的参数
+-d for deamon mode
+-t for pseudo tty
+-i for interaction mode
+-p for bind port to host
+
+
+volume机制
+允许你把宿主机目录挂载进容器里面  docker run -v /hostPath:/containerPath
+
+
+
+
+## docker 仓库
+docker login -u <username> -p <password> -e <email> <registry domain>   登录docker仓库
+docker push localhost:5000/official/ubuntu:14.04 向本地仓库上传镜像
+
+## docker 容器
+容器就是镜像上面加一层存储
+docker commit container_id ubuntu:v2    把在运行的一个container打包提交到一个image,
+docker ps   看看现在跑着哪些container在运行
+docker stop/start/restart/kill/rm container_id   停止/启动/重启/杀死/删除一个容器
+
+docker top container_id    查看一个container中在跑的进程
+docker logs container_id   查看一个container中的日志
+docker diff container_id   查看这个container里面的image做了哪些修改(增删改)
+
+docker stop $(docker ps -a -q)  停止所有的container，这样才能够删除其中的images
+docker rm $(docker ps -a -q)  删除所有container
+docker rmi $(docker images | grep "^<none>" | awk "{print $3}")  删除untagged images，也就是那些id为<None>的image的话可以用
+docker rmi $(docker images -q)  删除所有image
+
+docker exec -i -t 9a1ee6b6f1db bash    进入容器
+      http://developerworks.github.io/2014/09/07/docker-how-to-enter-a-container/
+
+## docker exec是怎么进入到容器里面的呢？
+先去找你的容器的pid:  docker inspect --format '{{ .State.Pid }}' 4ddf4638572d
+然后找这个容器对应的namespace: ls -l /proc/25686/ns
+**一个进程，可以选择加入某个进程已有的namespace中，从而达到进入这个进程所在容器中的目的，这就是docker exec的实现原理**
+
+这个操作依赖setns()系统调用
+
+docker cp host-file-path <container-id>:/container-file-path
+docker cp <container-id>:/container-file-path host-file-path
+
+## 其他命令
+docker info
+docker version
+docker events    打印容器实时的系统事件
+docker history image_id  查看image的历史
+
+## docker 容器卷管理
+docker容器中产生的数据，如果不通过docker commit生成新的镜像，使得数据成为镜像的一部分保留下来，那么数据就会在容器被删除后丢失。为了能够持久化保存容器的数据，docker提出了卷(volume)的概念。简单来说，卷就是文件，由docker daemon挂载到容器中。卷中的数据在容器被删除后仍然可以访问
+docker run -d -v /tmp/data --name busyboxtest busybox 在容器的/tmp/data目录下创建一个新的数据卷
+docker inspect bosyboxtest 可以查看/tmp/data数据卷对应的主机目录位置
+docker run -d -v /host/data:/data --name busyboxtest busybox 将主机目录/host/data挂载到容器内的/data
+
+创建数据卷容器
+docker create -v /dbdata --name dbdata training/postgres /bin/true
+然后启动postgres数据库服务
+docker run -d --volumes-from dbdata --name db1 training/postgres
+docker run -d --volumes-from dbdata --name db2 training/postgres
+迁移数据卷,下面的命令将数据卷中的数据打包，并将打包后的文件拷贝到主机的当前目录
+docker run --rm --volumes-from dbdata -v $(pwd):/backup ubuntu tar cvf /backup/backup.tar /dbdata
+
+## Dockerfile:
+一般情况下，Dockerfile由4部分组成：基础镜像信息，维护者信息，镜像操作指令和容器启动指令。
+
+FROM ubuntu
+MAINTAINER bigtom hi@chenminhua.com
+RUN echo "deb http://archive.ubuntu.com/ubuntu/ raring main universe" >> /etc/apt/sources.list
+RUN apt-get update && apt-get install -y nginx  命令RUN会被翻译为"/bin/sh -c blahblah"
+RUN echo "\ndaemon off;" >> /etc/nginx/nginx.conf
+EXPOSE 80 暴露端口
+WORKDIR   指定工作目录
+USER      指定当前用户
+HEALTHCHECK 健康检查
+VOLUME /data     创建一个挂载点，一般用来存放数据库或者需要永久保存的数据
+ENV NODE_ENV=development  指定一个环境变量
+ARG                       设置环境变量（不会保存到容器运行时）
+ADD指令   更高级的COPY,建议使用COPY
+COPY <src> <dst>     复制本机目录/文件到容器中
+ENTRYPOINT指令    每个dockerfile只能有一个ENTRYPOINT
+CMD /usr/sbin/nginx  CMD命令指定启动容器时的命令。
+注意： 每个Dockerfile只能有一条CMD指令(容器就是一个进程)。如果有多个CMD命令，只执行最后一条。对于容器而言，启动容器就是启动容器应用进程，容器就是为主进程而存在的。容器中的应用应该在前台执行。
+
+# Get the process ID for a container
+# Source: https://github.com/jpetazzo/nsenter
+docker inspect --format {{.State.Pid}} <container_name_or_ID>
+
+# List the current mounted volumes for a container (and pretty print)
+# Source:
+# http://nathanleclaire.com/blog/2014/07/12/10-docker-tips-and-tricks-that-will-make-you-sing-a-whale-song-of-joy/
+docker inspect --format='{{json .Volumes}}' <container_id> | python -mjson.tool
+
+
+## 容器与虚拟机的区别
+操作系统分为内核和用户空间，内核启动后，会挂载root文件系统为其提供用户空间支持，而docker镜像就是一个root文件系统
+容器的实质是进程，容器运行在属于自己的命名空间。容器存储层的生存周期和容器一样，容器消亡时，容器存储层也随之消亡。
+容器技术是一种操作系统的虚拟化。一般来说，容器技术主要包含namespace和cgroup两个内核特性。
+容器 = cgroup + namespace + rootfs + 容器引擎
+cgroup: 资源控制
+namespace: 访问隔离
+rootfs: 文件系统隔离
+容器引擎: 生命周期控制
+namespace将内核的全局资源封装，使得每个namespace都有一份独立的资源。对于namespace的操作，主要是通过clone, setns和unshare这3个系统调用来完成的
+
+
+### swarm
+swarm是docker社区提供的原生支持docker集群的工具。可以把多个docker主机组成的系统转换为单一的虚拟docker主机。
+swarm的目标是使用一样的api,将docker客户端对api endpoint的请求在发往swarm管理下的docker引擎节点组成的集群的过程中，根据调度策略分发到集群中的某个引擎节点上处理。这样，既有的工具可以像在单机版一样继续在swarm集群中使用。
+swarm由discovery service模块，scheduler模块，leadership模块组成

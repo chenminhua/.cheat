@@ -1,0 +1,75 @@
+时序数据库，golang编写,http(s)接口，支持通过插件集成到graphite,collectd等
+sql-like的查询语句，利用tag来快速索引序列，连续查询自动聚合，内置web管理界面
+
+可以使用systemd来管理influxd后台进程，默认有一个命令行客户端influx,默认运行在8086端口
+
+CREATE DATEABASE mydb
+SHOW DATABASES
+USE mydb
+
+database
+measurement
+points
+
+point属性： time, fields, tags
+
+influxDB的数据是按照时间序列来组织的，每个时间序列含有很多的点，每个点包含time和measurement以及若干field和tag。
+可以认为measurement是一张表，其中time是主索引，field和tag是一些字段，其中tag是被索引了的字段。
+
+INSERT cpu,host=serverA,region=US_WEST value=0.64
+SELECT "host", "region", "value" FROM "cpu" limit 10
+SHOW series from "cpu"
+
+# 增
+insert measurement,tags, fields
+insert weather,altitude=1000,area=北 temperature=11,humidity=-4
+curl -i -XPOST 'http://localhost:8086/write?db=testDB' --data-binary 'weather,altitude=1000,area=北 temperature=11,humidity=-4'
+
+# 查
+SELECT * FROM weather ORDER BY time DESC LIMIT 3
+curl -G 'http://localhost:8086/query?pretty=true' --data-urlencode "db=testDB" --data-urlencode "q=SELECT * FROM weather ORDER BY time DESC LIMIT 3"
+类似sql
+
+# 数据库操作
+CREATE DATABASE "db_name"
+SHOW DATABASES
+DROP DATABASE "db_name"
+USE "db_name"
+
+SHOW MEASUREMENTS
+DROP MEASUREMENT "m_name"
+
+不能删改point
+
+# 数据保存策略 (Retention Policies)
+查看当前保存策略
+SHOW RETENTION POLICIES ON "testDB"
+
+创建新的保存策略，设置使用数据库，保存时间，副本个数，是否为默认
+CREATE RETENTION POLICY "rp_name" ON "db_name" DURATION 30d REPLICATION 1 DEFAULT
+
+修改保存策略
+ALTER RETENTION POLICY "rp_name" ON db_name" DURATION 3w DEFAULT"
+
+删除保存策略
+DROP RETENTION POLICY "rp_name" ON "db_name"
+
+
+# 连续查询
+不完全删除，而是把过期的数据自动聚合（比如1s一个点变成1小时一个点）
+CREATE CONTINUOUS QUERY cq_30m ON testDB BEGIN SELECT mean(temperature) INTO weather30m FROM weather GROUP BY time(30m) END
+cq_30m为连续查询的名称，mean(temperature)为算平均值， weather为当前measurement, weather30m为新measurement 30m为时间间隔
+
+删除连续查询
+DROP CONTINUOUS QUERY <cq_name> ON <database_name>
+
+# 用户管理
+SHOW USERS
+
+CREATE USER "username" WITH PASSWORD "password"
+
+# 创建管理员权限用户
+CREATE USER "username" WITH PASSWORD 'password' WITH ALL PRIVILEGES
+
+# 删除用户
+DROP USER "username"

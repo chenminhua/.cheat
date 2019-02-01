@@ -1,0 +1,424 @@
+### 选择器
+选择器优先级 !important > id > class > tag
+
+```
+h1+p  相邻兄弟选择器
+h1~p  普通兄弟选择器
+ul > li 子选择器
+li  a  后代选择器
+a[rel="external"] 属性选择器
+
+伪选择器
+:link
+:visited
+:hover
+:active
+
+:focus
+
+:first-child
+:last-child
+:nth-child(an+b)
+:nth-last-child(an+b)
+tr:nth-child(odd){background-color: #ffc;}
+tr:nth-child(even){background-color: #fff;}
+
+:empty
+
+:target
+
+:checked
+
+:enabled
+:disabled
+
+:before(css2) 在元素前添加元素
+::before(css3)
+```
+
+### 属性
+
+```
+font, font-size, font-family, line-height行高, text-decoration装饰, font-weight, font-style
+word-break, letter-spacing, text-align, word-spacing
+
+color, background-color
+
+.ref:before{
+  content: "Reference: "; 内容
+}
+
+visibility
+cursor
+```
+
+### 盒子模型
+
+```
+border 边框
+padding 内边距
+margin 外边距
+```
+
+### overflow
+visible
+hidden
+scroll
+auto
+inherit
+
+### display
+每个元素都有一个display属性，这和该元素的类型有关。
+
+```
+block    //div,p,form,header,footer,section
+inline   //span,a
+inline-block
+none     //不显示
+flex
+table
+list-item
+```
+
+### position
+
+```
+static 默认值
+relative  相对于其原来的位置移动，可以用margin来达到同样效果
+fixed 相对于指定窗口的位置
+absolute 为元素指定相对于父元素（定位的父元素）的位置。你可以为任何父元素指定position:relative
+```
+
+### float
+float属性强制元素靠左或者靠右。可以用clear来避免其他元素受其影响
+
+### 居中
+```
+水平居中
+inline元素：  父 text-align: center;
+block元素：   width:... ; margin: 0 auto;
+absolute定位 left + margin-left
+
+垂直定位
+table + vertical-align: middle
+absolute定位 top + margin-top
+```
+
+```html
+<head>
+  <style>
+    #outer{
+      background: blue;
+      max-width: 600px;
+      height: 400px;
+      margin: 0 auto;
+    }
+    #inner{
+      background: green;
+      max-width: 400px;
+      height: 300px;
+      margin: 0 auto;
+      position: relative;
+    }
+    #ininner{
+      background: #282C34;
+      width: 300px;
+      height: 200px;
+      position: absolute;
+      left: 50%;
+      margin-left: -150px;
+      top: 50%;
+      margin-top: -100px;
+    }
+  </style>
+</head>
+<body>
+  <div id="outer">
+    <div id="inner">
+      <div id="ininner">
+      </div>
+    </div>
+  </div>
+</body>
+```
+![pic1](pic/center.png)
+
+
+
+# 布局
+### 左定宽右适应
+
+```html
+<style>
+#left, #right{
+  background: #ccc;
+}
+#left {
+  float: left;
+  width: 200px;
+}
+#right {
+  margin-left: 210px;
+}
+</style>
+
+<div id="left" style="height:340px;">自适应区</div>
+<div id="right" style="height:240px;">固定宽度区</div>
+```
+![zdyz1](pic/zzyd1.png)
+
+或者
+
+```css
+nav{
+  position: absolute;
+  width:200px;
+}
+section{
+  margin-left: 200px;
+}
+```
+
+### 左适应右定宽
+
+```html
+<style>
+  #wrap {
+    overflow: hidden;
+  }
+  #content ,#sidebar {
+    background-color: #eee;
+  }
+  #sidebar {
+    float: right; width: 300px;
+  }
+  #content {
+    margin-right: 310px;
+  }
+</style>
+
+<body>
+<div id="wrap">
+  <div id="sidebar" style="height:240px;">固定宽度区</div>
+  <div id="content" style="height:340px;">自适应区</div>
+</div>
+</body>
+```
+![zdyz1](pic/zdyz1.png)
+
+方法二
+
+```html
+<style>
+#wrap {
+  position: relative;
+}
+#content ,#sidebar {
+  background-color: #eee;
+}
+#sidebar {
+  width: 300px;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+#content {
+  margin-right: 310px;
+}
+</style>
+
+<body>
+<div id="wrap">
+  <div id="content" style="height:340px;">自适应区</div>
+  <div id="sidebar" style="height:240px;">固定宽度区</div>
+</div>
+</body>
+```
+
+### 左右同宽，中间留空
+
+```html
+<style>
+  #left{
+    float: left;
+    width: 50%;
+  }
+  #right{
+    float: left;
+    width: 50%;
+  }
+  #realleft{margin-right: 20px;}
+  #realright{margin-left: 20px;}
+</style>
+
+<div id="left"><div id="realleft" style="height:200px; background:#888;"></div></div>
+<div id="right"><div id="realright" style="height:200px; background:#888;"></div></div>
+```
+
+![zytzlk](pic/zytzlk.png)
+
+可以用css的calc函数
+
+```html
+<style>
+  #left{
+    float: left;
+    width: calc(50% - 15px);
+  }
+  #right{
+    float: left;
+    width: calc(50% - 15px);
+    margin-left: 30px;
+  }
+</style>
+
+<div id="left" style="height:200px; background:#888;"></div>
+<div id="right" style="height:200px; background:#888;"></div>
+```
+
+### 圣杯布局 与 双飞布局
+```html
+<style type="text/css">
+    *{margin: 0;padding: 0;}
+    .header, .footer{
+        background: #aaa;
+        text-align: center;
+    }
+    .container{
+        padding:0 220px 0 200px;
+        overflow: hidden;
+    }
+    .left, .middle, .right{
+        position: relative;
+        float: left;
+        min-height: 130px;
+    }
+    .left{
+        margin-left: -100%;
+        left: -200px;
+        width: 200px;
+        background: red;
+    }
+    .right{
+        margin-left: -220px;
+        right: -220px;
+        width: 220px;
+        background: green;
+    }
+    .middle{
+        width: 100%;
+        background: blue;
+    }
+    .footer{
+        clear: both;
+    }
+</style>
+
+<div class="header">
+    <h4>header</h4>
+</div>
+<div class="container">
+    <div class="middle"></div>
+    <div class="left"></div>
+    <div class="right"></div>
+</div>
+<div class="footer">
+    <h4>footer</h4>
+</div>
+```
+![doublefly](pic/doublefly.png)
+
+```html
+<style type="text/css">
+    *{margin: 0;padding: 0;}
+    .header,.footer{
+        background: #aaa;
+        text-align: center;
+    }
+    .sub, .main, .extra{
+        float: left;
+        min-height: 130px;
+    }
+    .sub{
+        margin-left: -100%;
+        width: 200px;
+
+    }
+    .extra{
+        margin-left: -220px;
+        width: 220px;
+    }
+    .main{
+        width: 100%;
+    }
+    .main-inner{
+        margin-left: 200px;
+        margin-right: 220px;
+    }
+    .footer{
+        clear: both;
+    }
+</style>
+</head>
+<body>
+<div class="header"><h4>header</h4></div>
+<div class="main">
+    <div class="main-inner" style="min-height: 130px; background: green;"></div>
+</div>
+<div class="sub" style="background: red;"></div>
+<div class="extra" style="background: blue;"></div>
+<div class="footer"><h4>footer</h4></div>
+```
+
+更简单的方法就是用css的calc。先都float:left;然后
+
+```css
+left {width: 200px;}
+main {width: calc(100% - 400px);}
+right {width: 200px;}
+```
+
+### 响应式布局
+
+```html
+<style>
+  nav{
+    float: left;
+    width: 25%;
+    min-height: 50px;
+  }
+  section{
+    margin-left: 25%;
+    height: 300px;
+  }
+  @media screen and (max-width: 599px){
+    nav {float: none; width:100%;}
+    section {margin: 0;}
+    nav li {display: inline;}
+  }
+</style>
+
+<nav style="background:#ccc;">
+  <li><a href="">111</a></li>
+  <li><a href="">eee</a></li>
+  <li><a href="">www</a></li>
+  <li><a href="">111</a></li>
+  <li><a href="">eee</a></li>
+  <li><a href="">www</a></li>
+</nav>
+<section style="background:green;"></section>
+```
+
+结果为
+![zsy1](pic/zsy1.png)
+![zsy2](pic/zsy2.png)
+
+# 媒体查询
+```css
+@media screen and (max-width:500px){
+  nav li{
+    display: inline;
+  }
+}
+
+```

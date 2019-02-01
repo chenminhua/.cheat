@@ -1,0 +1,10 @@
+flannel是coreos开发的容器网络解决方案。
+flannel为每个host分配一个subnet,容器从subnet中分配ip,这些ip可以在host间路由，容器间无需NAT和port mapping
+
+每个subnet都是从一个更大的ip池中划分的，flannel在每个主机上运行一个叫flanneld的agent,其职责就是从pool中分配subnet
+
+flannel使用etcd存放网络配置，已经分配的subnet,host的ip等等信息。
+
+数据包通过backend在主机间实现转发，常用的backend包括vxlan和host-gw。
+
+

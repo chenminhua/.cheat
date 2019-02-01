@@ -1,0 +1,6 @@
+在/etc/init.d目录下面有所有可以通过service控制的服务
+
+service SERVICENAME [satrt|stop|restart|status]
+
+没有service咋办？
+/etc/init.d/network [start|stop|restart|status]

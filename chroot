@@ -1,0 +1,7 @@
+mkdir -p /newroot/{bin,lib,lib64}
+cp /bin/{bash,ls} /newroot/bin/
+list = "$(ldd /newroot/bin/{bash,ls} | egrep -o '/lib64.*\.[0-9]')"
+for i in $list; do 
+    cp "$i" "/newroot${i}"; 
+done
+chroot /newroot

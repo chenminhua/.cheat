@@ -1,0 +1,3 @@
+pstack <pid>
+
+相关命令: strace, ltrace

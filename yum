@@ -1,0 +1,46 @@
+list 列出所有可用的包
+search nmap 查看和nmap相关的包
+provides nmap 查看谁提供了nmap
+install [rpm包] 安装rpm包
+remove [rpm包] 删除rpm包
+update [rpm包] 更新rpm包
+info [rpm包] 查看rpm包
+grouplist
+groupinstall
+
+yum仓库中的元数据文件：
+  primary.xml.gz: 所有rpm包的列表,依赖关系，每个rpm安装生成额文件列表
+  filelists.xml.gz: 当前仓库中所有rpm的所有文件的列表
+  other.xml.gz: 额外信息
+
+# To install the latest version of a package:
+yum install <package name>
+
+# To perform a local install:
+yum localinstall <package name>
+
+# To remove a package:
+yum remove <package name>
+
+# To search for a package:
+yum search <package name>
+
+# To find what package installs a program:
+yum whatprovides </path/to/program>
+
+# To find the dependencies of a package:
+yum deplist <package name>
+
+# To find information about a package:
+yum info <package name>
+
+# List currently enabled repositories:
+yum repolist
+
+# List packages containing a certain keyword:
+yum list <package_name_or_word_to_search>
+ 
+# To download the source RPM for a package:
+yumdownloader --source <package name>
+
+# (You have to install yumdownloader first, which is installed by the yum-utils package)

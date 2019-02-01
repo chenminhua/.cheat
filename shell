@@ -1,0 +1,100 @@
+*  匹配任意个字符
+？ 匹配一个字符
+[characters]  匹配任意一个属于字符集的字符
+[!characters] 匹配任意一个不属于字符集的字符
+
+[:alnum:]  字母和数字
+[:alpha:]  字母
+[:digit:]  数字
+[:lower:]  小写
+[:upper:]  大写
+
+### 字符串
+单引号里的任何字符都会原样输出，双引号里可以有变量和转义字符
+if [ $a = $b  ]    判断两个字符串是否相同或不同: =, !=
+if [ -z $a  ]      判断字符串是否为空:  -z, -n
+
+#替换字符串
+str="apple, tree, apple tree's apple"
+echo ${str/apple/Apple}    #只替换第一个
+echo ${str//apple/Apple}   #替换全部
+echo ${str/#apple/APPLE}   #替换开头
+echo ${str/%apple/APPLE}   #替换结尾
+
+#截取字符串
+str="abbc,def,ghi,abcjkl"
+echo ${str#a*c}     # 输出,def,ghi,abcjkl  一个井号(#) 表示从左边截取掉最短的匹配 (这里把abbc字串去掉）
+echo ${str##a*c}    # 输出jkl，             两个井号(##) 表示从左边截取掉最长的匹配 (这里把abbc,def,ghi,abc字串去掉)
+echo ${str#"a*c"}   # 输出abbc,def,ghi,abcjkl 因为str中没有"a*c"子串
+echo ${str##"a*c"}  # 输出abbc,def,ghi,abcjkl 同理
+echo ${str#*a*c*}   # 空
+echo ${str##*a*c*}  # 空
+echo ${str#d*f)     # 输出abbc,def,ghi,abcjkl,
+      echo ${str#*d*f}    # 输出,ghi,abcjkl
+      
+      echo ${str%a*l}     # abbc,def,ghi  一个百分号(%)表示从右边截取最短的匹配
+      echo ${str%%b*l}    # a             两个百分号表示(%%)表示从右边截取最长的匹配
+      echo ${str%a*c}     # abbc,def,ghi,abcjkl
+      
+      ### 数组
+      foo=("bar" "baz" "boom")
+      foo[4]="biz"
+      echo  "first element of the array foo is ${foo[0]}"
+      echo "${foo[*]}"   # bar baz boom biz
+      echo "length of foo is ${#foo[*]}"  获取数组长度
+      
+      ## 函数
+       getSum(){
+             local num3=$1
+             local num4=$2
+             local sum=$((num3+num4))
+             echo $sum
+
+       }
+      num1=5
+      num2=6
+      sum=$(getSum num1 num2)
+      echo "the sum is $sum"  #11
+      
+       hello() {
+             echo $1
+
+       }
+      hello world  # world
+      
+      ### 文件
+      文件测试运算符 | 作用
+      --- | ---
+      -e | 文件是否存在
+      -f | 是否为普通文件
+      -r | 文件是否可读
+      -w | 文件是否可写
+      -x | 文件是否可执行
+      -d | 是否为目录
+      -L | 是否为符号链接
+      -p | 是否为管道
+      -S | 是否为socket
+      -G | 是否属于这个组
+      -O | 是否属于这个用户
+      })
+
+# 花括号展开
+> echo Front-{A,B,C}-Back
+Front-A-Back Front-B-Back Front-C-Back
+
+>  echo Number_{1..5}
+Number_1  Number_2  Number_3  Number_4  Number_5
+
+# 命令替换
+> ls -l $(which cp)
+-rwxr-xr-x 1 root root 71516 2007-12-05 08:58 /bin/cp
+
+# 双引号; 在双引号中，参数展开，算术表达式展开，和命令替换仍然有效:
+> echo "$USER $((2+2)) $(cal)"
+me 4    February 2008
+Su Mo Tu We Th Fr Sa
+
+# 如果需要禁止所有的展开，我们使用单引号。
+
+
+使用 shellcheck 工具

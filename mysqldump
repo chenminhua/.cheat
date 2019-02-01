@@ -1,0 +1,43 @@
+# To dump a database to a file (Note that your password will appear in your command history!):
+mysqldump -uusername -ppassword the-database > db.sql
+
+# To dump a database to a file:
+mysqldump -uusername -p the-database > db.sql
+
+# To dump a database to a .tgz file (Note that your password will appear in your command history!):
+mysqldump -uusername -ppassword the-database | gzip -9 > db.sql
+
+# To dump a database to a .tgz file:
+mysqldump -uusername -p the-database | gzip -9 > db.sql
+
+# To dump all databases to a file (Note that your password will appear in your command history!):
+mysqldump -uusername -ppassword --all-databases > all-databases.sql
+
+# To dump all databases to a file:
+mysqldump -uusername -p --all-databases > all-databases.sql
+
+# To export the database structure only:
+mysqldump --no-data -uusername -p the-database > dump_file
+
+# To export the database data only:
+mysqldump --no-create-info -uusername -p the-database > dump_file
+
+
+## mysqldump
+#```
+#导出数据库
+#mysqldump -u 用户名 -p 数据库名 > 导出的文件名
+#
+#导出表
+#mysqldump -u 用户名 -p 数据库名 表名 > 导出的文件名
+#
+#导出数据结构（不导出数据）
+#mysqldump -u 用户名 -p -d --add-drop-table 数据库名 > 导出的文件名
+#```
+#
+### index
+#SHOW INDEX FROM TABLENAME;   查看索引
+#CREATE INDEX material_org_id_name_spec_deleted_at ON Material (org_id, name, spec);  创建索引
+#``````
+#```
+#```

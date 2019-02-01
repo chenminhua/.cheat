@@ -1,0 +1,40 @@
+项目间快速跳转  command + ` /// command + shift + `
+last edit location: shift + cmd + delete
+Back / forward:   option + command + <- / ->
+Cmd + 1跳转到导航区， 再按esc跳转回编辑区
+跳转到类: Cmd + O
+跳转到文件： shift + cmd + O
+符号（函数之类的）：option + cmd + O
+
+find action:  shift + cmd + a
+
+
+快速安装插件: shift + cmd + a  再输入 plugins
+Emacsidea ???    Ctrl +j 
+
+列操作： ctrl + cmd + g
+
+Live template:  (从find action进去)
+创建一个group，比如叫”方法”
+Postfix ：（从find action进去):  for, sout, field, return, nn
+
+
+extract: alt + cmd +v
+
+Debug: run to cursor
+Debug: set value
+
+File structure:  cmd + f12
+Maven show dependencies  重要啊  option + shift + cmd + u
+类图结构  重要啊  option + shift + cmd + u 或者 ctrl + h 或者 option + cmd + u
+找个arrayList试一下
+Call hierarchy 方法调用关系： ctrl + option + h
+
+
+
+加书签 f11,  cmd+f11
+Ctrl + 1,2,3… 跳转到书签
+
+add to favorite:  某个文件， 某个类，某个函数
+
+

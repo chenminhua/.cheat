@@ -1,0 +1,47 @@
+稀疏，一致，分布式，多维，有序map
+labeled tables of rows, row consist of k-v
+
+(row key, column family, column, timestamp) -> value
+
+非sql,非关系,无Join,无事务,无二级索引
+
+线性可扩展，自动sharding，自动failover，强一致读写
+
+part of hadoop
+支持对HDFS的实时随机读写
+
+完美集成hadoop的mapReduce
+thrift和rest apis
+批量导入大量数据
+replication
+block cache and bloom filters
+按行存储，按列扫描
+
+## how
+行key为 byte arrays
+列按照列族组织，列族静态定义
+数据元包含一个byte array和一个时间戳
+
+行原子更新
+每个cell存储多个版本（默认mZ三个），旧数据垃圾回收
+数据通常是稀疏的。
+默认读最新的数据。
+
+favors consistency over availability
+part of a hadoop ecosystem
+
+
+## use case
+audit logging system
+    track user actions
+
+real-time analytics
+    时序数据库
+    real-time counters
+    interactive reports showing trends, breakdowns, etc
+
+messages-centered systems
+
+中石油，联通，阿里历史订单
+
+列数据库：数据量大，并发不高。列存压缩减小io

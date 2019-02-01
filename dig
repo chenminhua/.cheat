@@ -1,0 +1,22 @@
+# nslookup
+dns递归查询： 上连dns --> 根dns --> .cn的dns --> .edu.cn的dns
+真实场景是递归查询加迭代查询
+dns五元组 {domainName, ttl, class, type, value}
+dns八种类型 [SOA, A, MX, NS, CNAME, PTR, HINFO, TXT]
+nslookup -type=soa baidu.com
+
+## nslookup 交互模式
+更改上连dns服务器  server 8.8.8.8
+查看当前dns的配置  set all
+设置查询类型       set type=soa
+
+# dig
+查询根服务器 dig .
+指定dns服务来查询 dig @8.8.8.8 baidu.com A
+如果没有指定dnsserver，那么dig会使用/etc/resolv.conf中的地址作为上连dns服务器
+指定查询类型 dig baidu.com -t ns
+查询结果更清晰 dig -q baidu.com
+反解 dig -x 111.13.101.208
+跟踪全过程 dig +trace baidu.com
+精简输出 dig +short baidu.com
+

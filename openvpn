@@ -1,0 +1,164 @@
+
+## 搭 dns, vpn
+
+https://www.digitalocean.com/community/tutorials/how-to-set-up-and-configure-an-openvpn-server-on-centos-7
+
+```sh
+yum install -y openvpn wget
+wget -O /tmp/easyrsa https://github.com/OpenVPN/easy-rsa-old/archive/2.3.3.tar.gz
+tar xfz /tmp/easyrsa
+mkdir /etc/openvpn/easy-rsa
+cp -rf easy-rsa-old-2.3.3/easy-rsa/2.0/* /etc/openvpn/easy-rsa
+```
+
+## config openvpn
+
+先拷贝一份样例配置文件
+
+```
+cp /usr/share/doc/openvpn-2.4.6/sample/sample-config-files/server.conf /etc/openvpn
+```
+
+找到下面这行，取消注释，这告诉客户端将它的 trafic 都走你的 openvpn server。
+
+```
+push "redirect-gateway def1 bypass-dhcp"
+```
+
+然后修改你的 dns
+
+```
+push "dhcp-option DNS 8.8.8.8"
+push "dhcp-option DNS 8.8.4.4"
+```
+
+然后开放权限，找到下面两行，取消注释
+
+```
+user nobody
+group nobody
+```
+
+然后找到下面这行，取消注释
+
+```
+topology subnet
+```
+
+再修改下面这两行，第一行为注释掉，第二行为添加
+
+```
+;tls-auth ta.key 0
+tls-crypt myvpn.tlsauth
+```
+
+保存上面的配置文件，并且生成 myvpn.tlsauth
+
+```
+openvpn --genkey --secret /etc/openvpn/myvpn.tlsauth
+```
+
+## 创建秘钥和证书
+
+```
+mkdir /etc/openvpn/easy-rsa/keys
+```
+
+修改 /etc/openvpn/easy-rsa/vars 文件，主要是填上 KEY_CN 和 KEY_NAME
+
+```
+KEY_CN=openvpn.video4us.top
+KEY_NAME=server
+```
+
+source vars，然后执行
+
+```
+cd /etc/openvpn/easy-rsa
+./clean-all
+```
+
+然后运行
+
+```
+./build-ca
+```
+
+这会在 keys 目录下生成 ca.crt，ca.key 两个文件。
+
+```
+./build-key-server server
+```
+
+这会在 keys 目录下生成服务端证书。然后运行
+
+```
+./build-dh
+```
+
+然后运行
+
+```
+cd /etc/openvpn/easy-rsa/keys
+cp dh2048.pem ca.crt server.crt server.key /etc/openvpn
+```
+
+然后创建客户端 key
+
+```
+cd /etc/openvpn/easy-rsa
+./build-key client
+```
+
+然后
+
+```
+cp /etc/openvpn/easy-rsa/openssl-1.0.0.cnf /etc/openvpn/easy-rsa/openssl.cnf
+```
+
+## 开启 ip 转发
+
+```
+# 编辑 /etc/sysctl.conf，添加下面代码
+net.ipv4.ip_forward = 1
+```
+
+运行
+
+```
+systemctl restart network.service
+```
+
+## 开启 openvpn 服务端
+
+```
+systemctl -f enable openvpn@server.service
+systemctl start openvpn@server.service
+# 查看是否正常启动
+systemctl status openvpn@server.service
+```
+
+## 配置客户端
+
+先把 ca.crt client.crt client.key myvpn.tlsauth 这几个文件都拷贝到客户端，我把他们都放在了 Home 目录下的.ovpn 目录中。
+
+然后创建客户端配置文件 ata.ovpn
+
+```
+client
+tls-client
+ca ~/.ovpn/ca.crt
+cert ~/.ovpn/client.crt
+key ~/.ovpn/client.key
+tls-crypt ~/.ovpn/myvpn.tlsauth
+proto udp
+remote openvpn.video4us.top 1194 udp
+dev tun
+topology subnet
+pull
+user nobody
+group nobody
+```
+
+双击运行即可（mac 上安装了 tunnelblick）
+

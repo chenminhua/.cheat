@@ -1,0 +1,13 @@
+流量监控工具
+
+# 安装
+yum install epel-release -y
+yum install iftop -y
+
+# 监控指定网卡
+iftop -i eth1
+
+
+
+# 类似软件
+ifstat

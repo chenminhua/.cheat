@@ -1,0 +1,7 @@
+vboxmanage list vms
+
+# 关机
+vboxmanage controlvm uuid poweroff
+
+# 删除虚拟机
+vboxmanage unregistervm --delete uuid

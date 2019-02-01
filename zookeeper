@@ -1,0 +1,61 @@
+管理配置，命名，分布式同步等的中心服务
+高可用，manage shared state, 事务控制，锁管理
+key-value system
+metadata db, lock db
+written in java
+official api in java and c
+In-memory
+minimum of 3 nodes for production
+all nodes participate
+
+leader, follower
+client can read from both leader and flower
+client can write only to leader, and leader will tell all the follower 
+最终一致性（存在写入后的一段窗口，读不出来的可能，因为某些节点还没被同步）
+
+znode
+a byte array (~10k max)
+Timestamped
+Independent
+versioned
+zero or more child znodes
+persistent or session-ephemeral
+counting znodes
+
+session
+connection between the client and a node in the ensemble
+ephemeral nodes live and die within session
+
+watches
+one-time triggers on znode values or children
+asynchronous
+guaranteed to be seen by the client before the data changed
+
+ACLs (access control)
+apply to individual znodes (not children)
+znode contains a list of IDs (world, auth, digest, ip)
+IDs have permissions (CREATE, READ, WRITE, DELETE, ADMIN)
+
+## USE CASE
+#### Leader Election
+create a znode called leader-election
+all candidates create ephemeral sequential children
+the child of leader-election with the smallest sequence number is leader
+watch the znode with the next smallest sequence number for good news
+
+#### lock management
+create a znode called resource
+create ephemeral node called resource/hostname-{i}
+examine children of resource; i hold the lock if my ID is lowest
+Otherwise watch the ID preceding mine
+upon update event, I hold the lock;
+to release the lock, delete the ephemeral node 
+
+
+ruok      are you ok
+conf      配置信息
+envi      版本信息
+srvr      状态信息
+stat      集群状态
+isro      读写模式
+

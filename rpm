@@ -1,0 +1,69 @@
+## rpm
+  -ivh 安装,可视化,打印安装进度
+    --force 强制安装
+    --nodeps 不管依赖
+  -Uvh 升级一个包
+  -q 查询指定的包
+  -qa 查询所有的包
+  -qa | grep balabala
+  -qi 查看详细信息
+  -ql 查看安装的所有文件
+  -qpi query package and get information(安装前)
+  -V 校验
+  -e 删除某个包
+  -qf yum.conf 列出某个文件属于哪个包
+    rpm -qf `which vim`
+      vim-enhanced-7.4.160-1.el7_3.1.x86_64
+    rpm -e vim-enhanced-7.4.160-1.el7_3.1
+  --rebuildDatabase: 重建数据库
+  --initdb: 初始化数据库
+
+rpm
+  数据库： /var/lib/rpm
+包：
+  主包:
+    bind-9.7.1-1.i586.el5.rpm
+  子包:
+    bind-libs-9.7.1-1.i586.el5.rpm
+  包名格式 name-version-release.arch.rpm
+包格式：
+  二进制格式，源码格式
+
+# 制作rpm包的过程
+  set up the directory structure
+  把源码放在规划好的目录中
+  创建spec文件
+  build
+
+
+# To install a package:
+rpm -ivh <rpm>
+
+# To remove a package:
+rpm -e <package>
+
+# To remove a package, but not its dependencies
+rpm -e --nodeps <package>
+
+# To find what package installs a file:
+rpm -qf </path/to/file>
+
+# To find what files are installed by a package:
+rpm -ql <package>
+rpm -qpl <rpm>
+
+# To find what packages require a package or file:
+rpm -q --whatrequires <package>
+rpm -q --whatrequires <file>
+
+# To list all installed packages:
+rpm -qa
+
+# To find a pkg's dependencies
+rpm -i --test <package>
+
+# Display checksum against source
+rpm -K <package>
+
+# Verify a package
+rpm -V <package>

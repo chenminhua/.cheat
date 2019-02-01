@@ -1,0 +1,44 @@
+# pip
+# pip install package  #latest version
+# pip install package==1.0.4 #specific version
+# pip install ‘package>=1.0.4’ #minimum version
+# pip install -r requirement.txt #按照文件来安装
+# pip uninstall package #卸载某些包
+# pip freeze > requirement.txt #把已经安装的包输出到这个文件中，（移植开发环境）
+# pip list #查看你已经装了哪些包
+# pip list –outdated  #过期的包
+# pip show pkg #查看包的具体信息
+# pip search pkg #搜索包
+#
+# 修改~/.pip/pip.conf改源
+[global]
+index-url = http://pypi.douban.com/simple
+
+
+# Search for packages
+pip search SomePackage
+
+# Install some packages
+pip install SomePackage
+
+# Install some package in user space
+pip install --user SomePackage
+
+# Upgrade some package
+pip install --upgrade SomePackage
+
+# Output and install packages in a requirement file
+pip freeze > requirements.txt
+pip install -r requirements.txt
+
+# Show details of a package
+pip show SomePackage
+
+# List outdated packages
+pip list --outdated
+
+# Upgrade all outdated packages, thanks to http://stackoverflow.com/a/3452888
+pip freeze --local | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 pip install -U
+
+# Install specific version of a package
+pip install -I SomePackage1==1.1.0 'SomePackage2>=1.0.4'

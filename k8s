@@ -1,0 +1,35 @@
+# 在本地创建一个只有一个Node的集群
+minikube start
+
+# 查看集群状态
+minikube status
+kubectl cluster-info
+kubectl get node
+
+# 按照label拿到pod, service, deployment
+kubectl get pods -l run=hello-minikube
+kubectl get services -l run=hello-minikube
+kubectl get deployments -l run=hello-minikube
+
+# 给pod打标签
+kubectl label pod hello-minikube-3015430129-wz87c app=v1
+kubectl get pods -l app=v1
+
+# 删除某个service
+kubectl delete service -l app=v1
+
+# scale up
+kubectl scale deployments/hello-minikube --replicas=4
+# 查看一下
+kubectl get deployments
+kubectl get pods
+kubectl describe deployments/hello-minikube
+
+# scale down
+kubectl scale deployments/hello-minikube --replicas=2
+
+# 查看更新状态
+kubectl rollout status deployments/hello-minikube
+
+# 回滚更新过程（放弃之前的更新）
+kubectl rollout undo deployments/hello-minikube

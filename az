@@ -1,0 +1,121 @@
+虚拟网络,可以在每个azure订阅中实现多个vnet，vnet之间相互隔离。可将vnet细分为一个或者多个子网，并向每个子网分配一部分vnet地址空间。vm通过NIC连接到vnet中的子网。vnet也可以相互连接。本地网络可以通过vpn连接vnet。
+入门 https://docs.microsoft.com/zh-cn/azure/virtual-network/virtual-network-get-started-vnet-subnet
+
+资源组
+以组的方式处理解决方案中的资源，可以使用一个模板来完成部署，该模板适用于不同的环境，比如开发、测试和生产。
+Resource manager模板： 一个json文件，用于定义一个或多个要部署到资源组的资源，以及资源之间的依赖关系。
+
+模板的最佳实践
+https://docs.microsoft.com/zh-cn/azure/azure-resource-manager/resource-manager-template-best-practices
+
+网络安全组（NSG）
+https://docs.microsoft.com/zh-cn/azure/virtual-network/virtual-networks-nsg
+网络安全组包含一系列安全规则，这些规则可以拒绝或者允许流向连接到vnet的资源的网络流量。
+可以将NSG关联到子网，单个vm或vm的某个NIC。
+NSG包含两组规则：入站规则和出站规则
+
+云服务和网络安全
+https://docs.microsoft.com/zh-cn/azure/best-practices-network-security
+
+路由网络流量
+默认情况下，azure会创建路由表，这些路由表可以使得连接到vnet的任何子网的资源相互通信
+
+Load Balancer
+第4层类型负载均衡器，可以将azure负载均衡器配置为：
+对传入vm的流量进行负载均衡
+对虚拟网络中虚拟机直接的流量进行负载均衡
+将外部流量转发到特定vm
+
+权限
+私钥管理，拆开用户，centos，vpc(每个子网配置在一个安全组，子网内全通)
+
+# vm机器
+az vm list -g <group> -o table
+az vm delete -g <group> -n <vmname>
+az vm create -g ata-op -n ata-op1 --image CentOS -size Standard_B2s --admin-username azure --ssh-key-value ~/.ssh/ata.pub
+列出可用的size: az vm list-sizes -l southeastasia
+
+### vm publisher
+az vm image list-publishers -l southeastasia -o table
+### vm offers
+az vm image list-offers -l southeastasia -p RedHat -o table
+### vm images
+
+
+
+# vnet
+az network vnet list -g <group> -o table
+az network vnet delete -g <group> -n <vnetname>
+
+
+# 网卡
+az network nic list -o table
+az network nic delete -g <group> -n <nicname>
+
+
+# public-ip
+az network public-ip list -g <group> -o table
+az network public-ip delete -g <group> -n <ipname>
+
+
+# nsg
+az network nsg list -o table
+az network nsg delete -g <group> -n <nsgname>
+
+# disk
+az disk list -g <group> -o table
+az disk delete -g <group> -n <name>
+
+
+# 资源组
+az group create --name ata-op --location southeastasia
+
+
+
+
+
+
+首先创建一个新的资源组，名字为 ata-op
+az group create --name ata-op --location southeastasia
+
+然后创建创建虚拟网络(vnet,名称为 opvnet)和子网(subnet,名称为 opsubnet)。子网为 10.0.0.0/24。也就是说我们可以使用 10.0.0.0 到 10.0.0.255 的 ip
+az network vnet create -g ata-op -n opvnet --address-prefix 10.0.0.0/24
+az network vnet subnet create -g ata-op --vnet-name opvnet -n opsubnet --address-prefix 10.0.0.0/24
+检查一下虚拟网络和子网有没有建好 az network vnet subnet list -g ata-op --vnet-name opvnet
+
+我们可以开几个公网 ip，其中--allocation-method Static 表示启用固定的公网 ip 。当然其实你只需要一个公网 ip 就够了。
+az network public-ip create -g ata-op -n ata-op-ip1 --allocation-method Static
+az network public-ip create -g ata-op -n ata-op-ip2 --allocation-method Static
+az network public-ip create -g ata-op -n ata-op-ip3 --allocation-method Static
+
+下一步我们来创建三张网卡(nic)，并且给网卡都配上公网 ip 和内部 ip。
+az network nic create -g ata-op --vnet-name opvnet -n ata-op1-nic --subnet opsubnet --private-ip-address 10.0.0.10
+查看一下这张网卡的 ip-config(可以看到，现在只有一个 ip-config，名为 ipconfig1)
+az network nic ip-config list -g ata-op --nic-name ata-op1-nic
+给这张网卡加上 public ip
+az network nic ip-config update -g ata-op -n ipconfig1 --nic-name ata-op1-nic --public-ip-address ata-op-ip1
+也可以在创建的时候直接指定 public-ip
+az network nic create -g ata-op --vnet-name opvnet -n ata-op2-nic --subnet opsubnet --private-ip-address 10.0.0.20 --public-ip-address ata-op-ip2
+az network nic create -g ata-op --vnet-name opvnet -n ata-op3-nic --subnet opsubnet --private-ip-address 10.0.0.30 --public-ip-address ata-op-ip3
+
+最后创建三台虚拟机，使用centos,绑定前面配好的网卡，设置好用户，并提供公钥（用于ssh登录）
+az vm create -g ata-op -n ata-op1 --image CentOS --nics ata-op1-nic --admin-username azure --ssh-key-value ~/.ssh/ata.pub
+az vm create -g ata-op -n ata-op2 --image CentOS —-nics ata-op2-nic --admin-username azure --ssh-key-value ~/.ssh/ata.pub
+az vm create -g ata-op -n ata-op3 --image CentOS —-nics ata-op3-nic --admin-username azure --ssh-key-value ~/.ssh/ata.pub
+
+
+
+
+磁盘
+创建磁盘
+az disk create -g test -n tv1-data --size-gb 100
+
+挂载磁盘到机器
+az vm disk attach -g test --vm-name tv1 --disk tv1-data
+ls -l /dev/sd*
+
+detach一块磁盘
+az vm disk detach -g test --vm-name tv1 -n tv1-data-dev
+
+删除磁盘
+az disk delete -g test -n tv1-data

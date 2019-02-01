@@ -1,0 +1,169 @@
+# erlang	
+erl  进入交互模式
+## 原子，列表，元组
+Pill = blue      %原子
+[1,2,"three"]   %列表
+{0,0}  %元组
+
+## 函数
+```erlang
+-module(matching_function).
+-export([number/1]).
+number(one) -> 1;
+number(two) -> 2;
+number(three) -> 3.
+```
+erlang对尾递归进行了优化
+```erlang
+-module(yet_again).
+-export([another_factorial/1]).
+-export([another_fib/1]).
+
+another_factorial(0) -> 1;
+another_factorial(N) -> N * another_factorial(N-1).
+
+another_fib(0) -> 1;
+another_fib(1) -> 1;
+another_fib(N) -> another_fib(N-1) + another_fib(N-2)
+```
+
+## 控制结构
+case 
+```erlang
+Animal = "dog".
+case Animal of
+	"dog" -> underdog;
+	"cat" -> thundercat;
+	_ -> something_else
+end.
+```
+
+if
+```erlang
+if 
+	X > 0 -> positive;
+	X < 0 -> negative;
+	true -> zero
+end.
+```
+
+## 匿名函数
+```erlang
+Negate = fun(I) -> -I end.
+Negate(1).
+```
+
+## 高阶函数
+```erlang
+Numbers = [1,2,3,4].
+lists:foreach(fun(Number) -> io:format("~p~n", [Number]) end, Numbers).
+```
+
+简化一点
+```erlang
+Print = fun(x) -> io:format("~p~n", [X]) end.
+lists:foreach(Print, Numbers).
+```
+
+map
+
+```erlang
+lists:map(fun(X) -> X + 1 end, Numbers).
+```
+
+filter
+
+```erlang
+Small = fun(x) -> X < 3 end.
+lists:filter(Small, Numbers).
+```
+
+all
+
+```erl
+lists:all(Small, [0,1,2])    //true
+lists:all(Small, [0,1,2,3])  //false
+```
+
+any
+
+```erl
+lists:any(Small, [0,1,2,3])  //false
+```
+
+takewhile, dropwhile
+
+foldl和foldr
+
+```erlang
+Numbers = [1,2,3,4].
+lists:foldr( fun(X,Sum) -> X + Sum end, 0, Numbers).   //10
+```
+
+## 并发
+用!发送消息，用spawn产生进程，用receive接收消息
+
+
+```erl
+-module(translate).
+-export([loop/0]).
+
+loop() ->
+  receive
+    "casa" ->
+      io:format("house~n"),
+      loop();
+
+    "blanca" ->
+      io:format("white~n"),
+      loop();
+
+    _ ->
+      io:format("I don't understand~n"),
+      loop()
+end.
+```
+
+使用
+
+```erl
+c(translate).
+Pid = spawn(fun translate:loop/0).
+Pid ! "casa"
+Pid ! "blanca"
+```
+
+同步消息，为了把消息模型从异步变成同步。我们需要
+	
+	给每个receive子句匹配一个元组。元组包含进程和需要翻译的词
+	每个receive子句都要把响应返回给发送者
+
+```erl
+-module(translate).
+-export([loop/0, translate/2]).
+
+loop() ->
+  receive
+    {From, "casa"} ->
+      From ! "house",
+      loop();
+
+    {From, "blanca"} ->
+      From ! "white",
+      loop();
+
+    {From, _} ->
+      From ! "I don't understand",
+      loop()
+end.
+
+translate(To, Word) ->
+  To ! {self(), Word},
+  receive
+    Translation -> Translation
+  end.
+
+```
+
+
+

@@ -1,0 +1,9 @@
+# 从绝对路径读取文件
+socat - /var/www/html/flag.php 
+
+# 从相对路径读取文件
+socat - ./flag.php
+
+连接远程端口
+socat - TCP:192.168.1.252:3306
+

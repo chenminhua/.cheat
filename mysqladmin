@@ -1,0 +1,47 @@
+
+#首先配置一下我的zsh。
+alias mysqladmin='/usr/local/mysql/bin/mysqladmin'
+#假如你现在的root账户没有密码，你希望修改为123456，命令为：
+mysqladmin -u root password 123456
+#现在你的root账户的密码为123456了。但是你现在又想改一下你的密码，变成abcdef，咋办呢？
+mysqladmin -u root -p password abcdef
+#提示你输入密码，输入旧密码123456，搞定。
+
+
+## 创建与删除mysql用户
+#```sql
+#-- 创建用户
+#create user ‘chen’@’localhost’ identified by ‘123456’;
+#-- 如果想让该用户可以在任意远程主机上登录,可以使用通配符”%”：
+#create user ‘chen’@’%’ identified by ‘123456’;
+#-- 如果想让该用户不需要密码就能登录，可以把他的密码设为空：
+#create user ‘chen’@’localhost’ identified by ‘’;
+#-- 查看用户
+#select user from mysql.user;
+#
+#-- 删除用户
+#drop user 'chen'@'localhost'
+#```
+#
+#### 授权与撤销
+#
+#```sql
+#grant privileges on databasename.tablename to 'chen'@'localhost';
+#-- 如果要授予该用户对所有数据库和表相应的操作权限，则可以使用*表示
+#-- 其中的privileges表示用户的操作权限，比如select, insert, update等等，如果要 授予所有的权限，则使用all.
+#grant select, insert on test.user to 'chen'@'%';
+#grant all on *.* to 'chen'@'localhost'
+#-- 注意:用以上命令授权的用户不能给其它用户授权,如果想让该用户可以授权,用以下命令:
+#grant all on car_db.car_table to 'chen'@'localhost' with  grant option;
+#-- 撤销用户权限
+#revoke privilege on dbname.tablename from 'chen'@'localhost';
+#
+#```
+#
+#### 设置与更改用户密码
+#
+#```sql
+#set password for 'chen'@'localhost' = password('123456');
+#```
+#
+

@@ -1,0 +1,51 @@
+缩进时不允许使用tab,只能使用空格。
+缩进的空格数目不重要，只要和相同层级的元素左侧对齐。
+# 表示注释
+
+对象： 键值对的集合，hash
+数组
+纯量(scalars):单个的，不可再分的值
+
+对象   
+animal: pets
+
+数组
+- cat
+- dog
+- goldfish
+
+数组也可以写成行内表示法
+animal: [cat, dog, goldfish]
+
+复合结构
+languages:
+ - Ruby
+ - Perl
+ - Python
+websites:
+ YAML: yaml.org
+ Ruby: ruby-lang.org
+ Python: python.org
+ Perl: use.perl.org
+
+纯量
+ 字符串   '123'
+ 布尔值   true, false
+ 整数     12
+ 浮点数   12.3
+ Null     null, ~
+ 时间     2001-12-14t21:59:43.10-05:00
+ 日期     1976-07-31
+
+# 引用，&用来建立锚点， << 表示合并到当前数据，*用来引用锚点
+defaults: &defaults
+  adapter:  postgres
+  host:     localhost
+
+development:
+  database: myapp_development
+  <<: *defaults
+
+test:
+  database: myapp_test
+  <<: *defaults

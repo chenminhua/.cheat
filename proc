@@ -1,0 +1,12 @@
+/proc/cpuinfo
+mpstat
+
+/proc/meminfo
+free, vmstat
+
+/proc/cmdline
+
+/proc/xxx/cwd
+/proc/xxx/exe
+/proc/xxx/fd
+/proc/xxx/smaps
