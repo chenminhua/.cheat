@@ -1,0 +1,2 @@
+• NumPy internally stores data in a contiguous block of memory, independent of other built-in Python objects. NumPy’s library of algorithms written in the C language can operate on this memory without any type checking or other overhead. NumPy arrays also use much less memory than built-in Python sequences.
+• NumPy operations perform complex computations on entire arrays without the need for Python for loops.

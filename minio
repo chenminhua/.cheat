@@ -1,0 +1,24 @@
+
+## 原因
+
+1. s3 真的有点贵。
+2. 存在连不上 s3 的场景。
+
+## 方案
+
+[minio](https://docs.minio.io/docs/minio-docker-quickstart-guide.html)
+
+```
+docker run -p 9000:9000 --name minio \
+  -e "MINIO_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE" \
+  -e "MINIO_SECRET_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" \
+  -v ~/.minio/data:/data \
+  -v ~/.minio/config:/root/.minio \
+  minio/minio server /data
+```
+
+登录 localhost:9000 即可。
+
+## mc (minio client)
+
+mc config host add minio http://localhost:9000 AKIAIOSFODNN7EXAMPLE wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY

@@ -1,0 +1,12 @@
+django-admin startproject jarvis
+cd jarvis
+python manage.py startapp tokenman
+
+
+## 数据库
+python manage.py makemigrations tokenman
+如果想查看一下会运行哪些migration   python manage.py sqlmigrate tokenman 0001
+python manage.py migrate
+
+## shell
+python manage.py shell

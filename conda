@@ -5,6 +5,8 @@ conda create --name envName
     $source activate testconda
     $source deactivate
 
+conda install pip
+
 删除某个环节
 conda remove --name envName --all
 

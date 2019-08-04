@@ -1,3 +1,91 @@
 http://www.vogella.com/tutorials/Gradle/article.html
 
 gradle wrapper  搞一个wrapper
+
+# 1.入门
+
+gradle init  生成一个项目
+gradle init -dsl
+
+## create a task
+创建一个将src文件夹拷贝到dest的任务
+
+```
+task copy(type: Copy, group: "Custom", description: "copy source to dest") {
+  from "src"
+  into "dest"
+}
+```
+
+运行 ./gradlew copy
+
+## apply a plugin
+
+```
+plugins {
+  id "base"
+}
+
+task zip(type: Zip, group: "Archive", description: "Archives sources in a zip file") {
+    from "src"
+    setArchiveName "basic-demo-1.0.zip"
+}
+```
+
+运行 ./gradlew zip
+
+## discover your tasks
+./gradlew tasks
+
+## 可用的properties
+./gradlew properties
+
+修改两个属性看看
+
+```
+description "A trivial Gradle build"
+version 1.0
+```
+
+# 2.构建一个Java项目
+
+## 构建java application
+
+gradle init --type java-application
+
+build项目 ./gradlew build
+
+运行项目 ./gradlew run
+
+
+
+
+## 构建java library
+
+gradle init --type java-library --project-name jvm-library
+
+build项目 ./gradlew build
+
+检查一下打好的jar包 jar tf build/libs/jvm-library.jar
+检查一下manifest文件 jar xf build/libs/jvm-library-0.1.0.jar META-INF/MANIFEST.MF
+
+修改一下build.gradle看看，加上一行  version = '0.1.0' 再运行 ./gradlew jar
+
+#### 配置jar任务
+```
+jar {
+    manifest {
+        attributes('Implementation-Title': project.name,
+                   'Implementation-Version': project.version)
+    }
+}
+```
+
+## spring boot项目
+
+```
+gradle init  --type java-application
+```
+
+
+
