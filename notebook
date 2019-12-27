@@ -7,6 +7,8 @@ python -m ipykernel install --user --name mykernel
 打开notebook
 jupyter notebook
 
+ipython notebook --port 1234
+
 查看notebook kernels
 jupyter kernelspec list
 

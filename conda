@@ -16,3 +16,6 @@ conda env list
 指定python版本
 conda create --name envName python=3.5
 
+
+
+source activate tensorflow

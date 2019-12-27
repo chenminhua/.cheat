@@ -1,0 +1,22 @@
+显示java堆详细信息
+jmap -heap pid
+
+显示堆中对象的统计信息，包括类名，对象数，内存大小。注意 [B == byte[], [C == char[], [I == int[] 
+jmap -histo:live pid
+
+打印类加载器信息
+jmap -clstats pid
+
+打印等待终结的对象信息
+jmap -finalizerinfo pid
+
+heapdump
+jmap -dump:format=b,file=heapdump.phrof pid
+想要浏览heapdump文件，可以使用jhat读取生成的文件。
+注意：这个命令可能比较耗时，线上慎用。
+
+
+
+
+
+

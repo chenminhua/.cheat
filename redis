@@ -106,6 +106,7 @@ PEXPIRE key-name milliseconds 指定过期时间
 PEXPIREAT key-name timestamp-milliseconds 指定过期时间
 
 # 持久化
+快照 / AOF
 redis可以通过创建快照来获得存储在内存中的数据在某个时间节点上的副本。
 
 创建快照的方法：
@@ -119,3 +120,7 @@ AOF(只追加文件)是redis的另一种持久化方法
 
 appendonly yes
 appendfsync always/everysec/no
+
+
+## benchmark
+redis-benchmark -c 1 -q

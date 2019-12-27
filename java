@@ -3,6 +3,13 @@ javap 查阅字节码
     javap -p -v Foo
 
 
+jconsole
+visualvm
+jstat
+jmap
+生成heapdump
+查看gc日志  -XX:+PrintGCDetails
+
 
 # 字符串
 String类是不可变类,当程序第一次使用某个字符串字面量的时候，java会在常量池中将其缓存。
