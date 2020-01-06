@@ -1,0 +1,6 @@
+# 查看运营商啥的
+speedtest-cli --list | grep China
+
+
+# 上海电信
+speedtest-cli --server=3633 --share

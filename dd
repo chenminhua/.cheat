@@ -27,3 +27,5 @@ dd if=/dev/zero of=./file bs=1048576 count=5120
 yes "hello world" >> dummy.txt
 一直写入，直到你ctrl-c
 
+# 磁盘测速
+dd if=/dev/zero of=/tmp/output.img bs=8k count=256k
